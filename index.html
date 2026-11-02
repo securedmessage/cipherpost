@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-nFSqn/4ltcGc9j45ur0+lBSP9DXbobn5aMQWusLlcv0='; style-src 'unsafe-inline'; img-src 'self' blob: data:; manifest-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-rdvAOveTmrNYrAhHJnUlXkK+Rc+AOLMIWrYWT7I5Dzk='; style-src 'unsafe-inline'; img-src 'self' blob: data:; manifest-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0E1117">
@@ -467,6 +467,19 @@ function appLink(payload) {
 function openInAppButton(payload) {
   return isAndroid ? h('a', { class: 'btn primary', href: appLink(payload) }, 'Open in the CipherPost app') : null;
 }
+function screenReplyForApp(payload) {
+  // A patient's or colleague's reply, opened in a staff member's browser: hand it to the app.
+  show(
+    h('div', { class: 'logo' }, '✅'),
+    h('h1', null, 'Finish in CipherPost'),
+    h('p', { class: 'center muted' }, 'This is a reply to an invite you sent. Open it in the CipherPost app to add the person and finish connecting.'),
+    h('div', { class: 'card' },
+      openInAppButton(payload) || h('p', null, 'Open this link on the Android phone that has the CipherPost app.'),
+      h('p', { class: 'muted small' }, 'Tip: so these open in the app automatically, go to your phone\'s Settings → Apps → CipherPost → Open by default, and turn on Open supported links.')),
+    footer());
+  const btn = app.querySelector('a.btn.primary');
+  if (isAndroid && btn) setTimeout(() => { try { location.href = btn.getAttribute('href'); } catch (e) {} }, 400);
+}
 function screenAppOnly(payload, why) {
   show(
     h('div', { class: 'logo' }, '📱'),
@@ -482,8 +495,9 @@ async function screenSetup() {
   try {
     if (pending && pending.includes(CP.INVITE_PREFIX)) invite = await CP.parseInvite(pending);
     else if (pending && pending.includes(CP.KEY_PREFIX)) staff = await CP.parseContactCode(pending);
-    else if (pending && (pending.includes(CP.JOIN_PREFIX) || pending.includes(CP.MSG_PREFIX)))
-      return screenAppOnly(pending, 'This link is for someone who uses the CipherPost app. If your care team sent it to you, first open the invite link they sent you.');
+    else if (pending && pending.includes(CP.JOIN_PREFIX)) return screenReplyForApp(pending);
+    else if (pending && pending.includes(CP.MSG_PREFIX))
+      return screenAppOnly(pending, 'There are no secure messages set up in this browser yet. If your care team invited you, open your messages in the same browser where you tapped their invite (for example Chrome or Safari). If you use the CipherPost app, open it there.');
   } catch (e) { err = e.message; }
   if (invite && invite.type !== 'P') return screenAppOnly(pending, 'This is an invite for staff who use the CipherPost app.');
 
@@ -658,7 +672,7 @@ async function processPending() {
       if (inv.type !== 'P') return screenAppOnly(text, 'This is an invite for staff who use the CipherPost app.');
       return acceptInvite(inv);
     }
-    if (text.includes(CP.JOIN_PREFIX)) return screenAppOnly(text, 'This link is for someone who uses the CipherPost app.');
+    if (text.includes(CP.JOIN_PREFIX)) return screenReplyForApp(text);
     const card = await CP.parseContactCode(text);
     if (card) {
       const me = session.data.me;
