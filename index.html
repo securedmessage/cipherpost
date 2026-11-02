@@ -1,0 +1,1814 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-6X0Qf9ZzkUcwyC1O3E/TbzPjl3HvJwFiPkmmgz/FetQ=' 'sha256-6Mgt4JPsExEeNfs+2L0oTiBp09BiGMlYlEUKjD1l5eM=' 'sha256-FiCJYmqqQ+JGIZqmrqX8gET9oqhjwT5uTe06nI93S1o=' 'sha256-a7rLmXlfZhbVKf21rWYoJ05cEGfuSzP9OG7B+JQrib8=' 'sha256-Xa0vDZ7VlTAo0gvq48yiqNDJnUAAQiiW7mtkrKc0k8M=' 'sha256-X+v2ImWJY82b5aZ1qeA5gL58JemTlQvN6S7nKVQ6TTs='; style-src 'unsafe-inline'; img-src 'self' blob: data:; connect-src https://ntfy.sh; manifest-src 'self'; form-action 'none'; base-uri 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0E1117">
+<meta name="color-scheme" content="dark">
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="CipherPost">
+<title>CipherPost Secure Messages</title>
+<style>
+:root{--bg:#0E1117;--card:#181D27;--card2:#212836;--line:#2c3445;--accent:#3DDC97;--accentDark:#1D5E47;--text:#E9EDF3;--muted:#8B94A5;--warn:#F2B84B;--danger:#F06A6A}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+body{min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+#app{max-width:760px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+main{padding:12px 16px 24px;flex:1}
+.center-col{display:flex;flex-direction:column;justify-content:center;max-width:460px;margin:0 auto;width:100%}
+h1{font-size:24px;margin:10px 0 6px;text-align:center} h2{font-size:19px;margin:0 0 10px} h3{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:22px 4px 8px}
+p{margin:8px 0} .c{text-align:center} .small{font-size:13px} .muted{color:var(--muted)} .warn{color:var(--warn)} .ok{color:var(--accent)} .danger-text{color:var(--danger)}
+.mono{font-family:ui-monospace,Consolas,Menlo,monospace;font-size:14px}
+.logo{font-size:52px;text-align:center;margin-top:24px}
+.card{background:var(--card);border-radius:16px;padding:14px 16px;margin-top:12px}
+.card.ok{color:var(--accent)}
+label{display:block;font-size:13px;color:var(--muted);margin-top:12px}
+input,textarea,select{font:inherit;width:100%;background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:8px}
+input:focus,textarea:focus,select:focus,button:focus-visible,.bubble:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+input.pin{text-align:center;font-size:22px;letter-spacing:.3em} input.pin::placeholder{letter-spacing:normal;font-size:16px}
+button,a.btn{font:inherit;font-weight:700;border:0;border-radius:12px;padding:12px 16px;min-height:48px;cursor:pointer;background:var(--card2);color:var(--text);width:100%;margin-top:10px;display:flex;align-items:center;justify-content:center;text-decoration:none;text-align:center}
+button.primary,a.btn.primary{background:var(--accent);color:#06281B}
+button.danger{background:#3a1f24;color:var(--danger)}
+button.link{background:none;color:var(--muted);font-weight:400;text-decoration:underline;min-height:0}
+button:disabled{opacity:.5;cursor:default}
+button.icon{width:auto;min-width:44px;min-height:44px;margin:0;padding:6px 10px;font-size:20px;background:transparent}
+.row{display:flex;gap:10px} .row>*{flex:1}
+.err{color:var(--danger);font-size:14px;min-height:18px;text-align:center}
+.bar{display:flex;align-items:center;gap:6px;padding:8px 8px 8px 12px;position:sticky;top:0;background:var(--bg);z-index:3;border-bottom:1px solid #1c2230}
+.bar-title{flex:1;min-width:0} .bar-title .t1{font-weight:700;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .bar-title .t2{font-size:13px;color:var(--accent)}
+.bar-actions{display:flex}
+.item{display:block;text-align:left;background:var(--card);font-weight:400;margin-top:8px}
+.item.unread{border-left:3px solid var(--accent)}
+.item-top{display:flex;align-items:center;gap:8px} .item-name{flex:1;font-weight:700;font-size:17px}
+.item-sub{display:flex;gap:8px;color:var(--muted);font-size:14px;margin-top:2px} .ellipsis{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .time{font-size:12px}
+.tag{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:10px;padding:0 8px}
+.badge{background:var(--accent);color:#06281B;border-radius:12px;padding:0 8px;font-size:13px;font-weight:700}
+.banner{background:#f2b84b22;color:var(--warn);padding:10px 14px;border-radius:12px;font-size:14px}
+.chat{display:flex;flex-direction:column;padding:0;overflow:hidden}
+.thread{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:12px 12px 16px;min-height:50vh}
+.bubble{max-width:82%;padding:8px 12px;border-radius:16px;background:var(--card2);white-space:pre-wrap;word-wrap:break-word;align-self:flex-start;cursor:default}
+.bubble.out{align-self:flex-end;background:var(--accentDark)} .bubble.failed{border:1px solid var(--danger)}
+.bubble .meta{font-size:11px;color:var(--muted);margin-top:3px} .bubble.out .meta{color:#bfebd8cc}
+.bubble .fname{font-weight:700} .bubble .thumb img{max-width:240px;max-height:240px;border-radius:10px;display:block;margin-bottom:6px}
+.bubble:has(.fname){cursor:pointer}
+.composer{display:flex;gap:6px;align-items:flex-end;padding:8px 10px calc(10px + env(safe-area-inset-bottom));background:var(--card);position:sticky;bottom:0}
+.composer textarea{margin:0;min-height:48px;max-height:180px;resize:vertical} .composer .send{width:auto;margin:0;padding:12px 18px} .composer .icon{margin-bottom:2px}
+.notice-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:var(--card2);padding:8px 12px;font-size:14px}
+.notice-bar button{width:auto;min-height:36px;margin:0;padding:6px 12px;font-size:14px}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;z-index:10}
+.sheet{background:var(--card);width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:20px 18px calc(16px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto}
+@media (min-width:700px){.scrim{align-items:center}.sheet{border-radius:18px}}
+.sheet-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px} .sheet-buttons button{flex:1;min-width:120px}
+.qr{width:min(320px,80vw);height:auto;background:#fff;border-radius:8px;margin:8px auto;display:block}
+.viewer-img{max-width:100%;border-radius:12px;display:block;margin:8px auto}
+.viewer-text{white-space:pre-wrap;background:var(--card);padding:12px;border-radius:12px;overflow:auto}
+.audit-row{padding:8px 4px;border-bottom:1px solid #1c2230}
+details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14px}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#000d;color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;z-index:20;max-width:90vw}
+.footer{text-align:center;color:var(--muted);font-size:12px;padding:16px} .footer a{color:var(--muted)}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div id="app"><p class="c muted" style="margin-top:40vh">Loading…</p></div>
+<noscript><p class="c">CipherPost needs JavaScript to encrypt messages on your device.</p></noscript>
+<script>/* CipherPost 2 — cryptography (Web Crypto only). © 2026 RM Software. See DESIGN.md. */
+(function (G) {
+  'use strict';
+  const CP2 = G.CP2 = G.CP2 || {};
+  const S = G.crypto.subtle;
+  const te = new TextEncoder(), td = new TextDecoder();
+  const EC = { name: 'ECDH', namedCurve: 'P-256' }, DSA = { name: 'ECDSA', namedCurve: 'P-256' };
+  const SIGN = { name: 'ECDSA', hash: 'SHA-256' };
+
+  // ------------------------------------------------------------ bytes
+  const AL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  const REV = new Int16Array(128).fill(-1);
+  for (let i = 0; i < 64; i++) REV[AL.charCodeAt(i)] = i;
+  REV[43] = 62; REV[47] = 63; // tolerate + and /
+  function b64e(b) {
+    let s = '', i = 0;
+    for (; i + 3 <= b.length; i += 3) {
+      const v = (b[i] << 16) | (b[i + 1] << 8) | b[i + 2];
+      s += AL[v >> 18 & 63] + AL[v >> 12 & 63] + AL[v >> 6 & 63] + AL[v & 63];
+    }
+    const r = b.length - i;
+    if (r === 1) { const v = b[i] << 16; s += AL[v >> 18 & 63] + AL[v >> 12 & 63]; }
+    else if (r === 2) { const v = (b[i] << 16) | (b[i + 1] << 8); s += AL[v >> 18 & 63] + AL[v >> 12 & 63] + AL[v >> 6 & 63]; }
+    return s;
+  }
+  function b64d(str) {
+    const c = [];
+    for (let k = 0; k < str.length; k++) {
+      const ch = str.charCodeAt(k);
+      if (ch === 61 || ch === 32 || ch === 10 || ch === 13 || ch === 9) continue;
+      if (ch >= 128 || REV[ch] < 0) throw new Error('Invalid code');
+      c.push(REV[ch]);
+    }
+    if (c.length % 4 === 1) throw new Error('Damaged code');
+    const out = new Uint8Array(Math.floor(c.length * 3 / 4));
+    let o = 0, i = 0;
+    for (; i + 4 <= c.length; i += 4) {
+      const v = (c[i] << 18) | (c[i + 1] << 12) | (c[i + 2] << 6) | c[i + 3];
+      out[o++] = v >> 16 & 255; out[o++] = v >> 8 & 255; out[o++] = v & 255;
+    }
+    const r = c.length - i;
+    if (r === 2) out[o++] = ((c[i] << 18) | (c[i + 1] << 12)) >> 16 & 255;
+    else if (r === 3) { const v = (c[i] << 18) | (c[i + 1] << 12) | (c[i + 2] << 6); out[o++] = v >> 16 & 255; out[o++] = v >> 8 & 255; }
+    return out;
+  }
+  function cat(...a) {
+    let n = 0; for (const x of a) n += x.length;
+    const o = new Uint8Array(n); let p = 0;
+    for (const x of a) { o.set(x, p); p += x.length; }
+    return o;
+  }
+  const eq = (a, b) => { if (a.length !== b.length) return false; let d = 0; for (let i = 0; i < a.length; i++) d |= a[i] ^ b[i]; return d === 0; };
+  const hex = b => Array.from(b, x => x.toString(16).padStart(2, '0')).join('');
+  const unhex = h => { const o = new Uint8Array(h.length / 2); for (let i = 0; i < o.length; i++) o[i] = parseInt(h.substr(2 * i, 2), 16); return o; };
+  const rand = n => { const o = new Uint8Array(n); for (let i = 0; i < n; i += 65536) G.crypto.getRandomValues(o.subarray(i, Math.min(n, i + 65536))); return o; };
+  const sha256 = async (...p) => new Uint8Array(await S.digest('SHA-256', cat(...p)));
+  const utf8 = s => te.encode(s);
+  const str = b => td.decode(b);
+
+  // ------------------------------------------------------------ AES-GCM helpers
+  async function aesKey(raw, usages = ['encrypt', 'decrypt']) { return S.importKey('raw', raw, 'AES-GCM', false, usages); }
+  async function gcmSeal(key, plain, aad) {
+    const iv = rand(12);
+    const ct = new Uint8Array(await S.encrypt({ name: 'AES-GCM', iv, additionalData: aad || new Uint8Array(0) }, key, plain));
+    return cat(iv, ct);
+  }
+  async function gcmOpen(key, blob, aad) {
+    return new Uint8Array(await S.decrypt({ name: 'AES-GCM', iv: blob.slice(0, 12), additionalData: aad || new Uint8Array(0) }, key, blob.slice(12)));
+  }
+
+  // ------------------------------------------------------------ identity & cards
+  async function newIdentity(name, role, relay) {
+    const a = await S.generateKey(EC, true, ['deriveBits']);
+    const s = await S.generateKey(DSA, true, ['sign', 'verify']);
+    return {
+      name, role, relay,
+      inbox: 'cp2' + b64e(rand(16)),
+      agreePriv: b64e(new Uint8Array(await S.exportKey('pkcs8', a.privateKey))),
+      agreePub: b64e(new Uint8Array(await S.exportKey('raw', a.publicKey))),
+      signPriv: b64e(new Uint8Array(await S.exportKey('pkcs8', s.privateKey))),
+      signPub: b64e(new Uint8Array(await S.exportKey('raw', s.publicKey))),
+    };
+  }
+  const keyCache = new Map();
+  async function cached(k, f) { if (!keyCache.has(k)) keyCache.set(k, f()); return keyCache.get(k); }
+  const agreePrivKey = me => cached('a' + me.agreePriv, () => S.importKey('pkcs8', b64d(me.agreePriv), EC, false, ['deriveBits']));
+  const signPrivKey = me => cached('s' + me.signPriv, () => S.importKey('pkcs8', b64d(me.signPriv), DSA, false, ['sign']));
+  const agreePubKey = raw => cached('A' + b64e(raw), () => S.importKey('raw', raw, EC, false, []));
+  const signPubKey = raw => cached('S' + b64e(raw), () => S.importKey('raw', raw, DSA, false, ['verify']));
+
+  async function userId(agreePubRaw, signPubRaw) {
+    return (await sha256(utf8('CP2 id'), agreePubRaw, signPubRaw)).slice(0, 8);
+  }
+  const idOfMe = async me => hex(await userId(b64d(me.agreePub), b64d(me.signPub)));
+
+  async function safetyCode(agreePubRaw, signPubRaw) {
+    const h = await sha256(utf8('CP2 safety'), agreePubRaw, signPubRaw);
+    return hex(h.slice(0, 12)).toUpperCase().match(/.{4}/g).join(' ');
+  }
+
+  async function makeCard(me) {
+    const body = utf8(JSON.stringify({ v: 2, n: me.name, a: me.agreePub, s: me.signPub, i: me.inbox, r: me.relay, k: me.role }));
+    const sig = new Uint8Array(await S.sign(SIGN, await signPrivKey(me), body));
+    return b64e(body) + '.' + b64e(sig);
+  }
+
+  /** Parses and checks a card. Returns {name, agreePub, signPub, inbox, relay, role, id, card}. */
+  async function parseCard(card) {
+    if (typeof card !== 'string' || card.length > 2000) throw new Error('Damaged contact card');
+    const [b, s] = card.split('.');
+    if (!b || !s) throw new Error('Damaged contact card');
+    const body = b64d(b), sig = b64d(s);
+    const o = JSON.parse(str(body));
+    if (o.v !== 2 || typeof o.n !== 'string' || typeof o.i !== 'string' || typeof o.r !== 'string') throw new Error('Unsupported contact card');
+    if (!/^cp2[A-Za-z0-9_-]{22}$/.test(o.i)) throw new Error('Damaged contact card');
+    // https relays only (plus this device's own loopback address, used for local testing)
+    if (!/^https:\/\/[^\s/]+(\/[^\s]*)?$/.test(o.r) && !/^http:\/\/127\.0\.0\.1:\d+$/.test(o.r)) throw new Error('Damaged contact card');
+    if (o.k !== 'staff' && o.k !== 'patient') throw new Error('Damaged contact card');
+    const agreePub = b64d(o.a), signPub = b64d(o.s);
+    if (agreePub.length !== 65 || signPub.length !== 65) throw new Error('Damaged contact card');
+    await agreePubKey(agreePub); // validates the point
+    if (!(await S.verify(SIGN, await signPubKey(signPub), sig, body))) throw new Error('Contact card signature is invalid');
+    return { name: o.n.slice(0, 80), agreePub: o.a, signPub: o.s, inbox: o.i, relay: o.r.replace(/\/+$/, ''), role: o.k,
+             id: hex(await userId(agreePub, signPub)), card };
+  }
+
+  // ------------------------------------------------------------ packets
+  const MAGIC = [0x43, 0x32]; // "C2"
+  const HEADER = 2 + 8 + 8 + 65;
+
+  async function messageKey(shared, ephRaw, sid, rid) {
+    const ikm = await S.importKey('raw', shared, 'HKDF', false, ['deriveBits']);
+    const bits = await S.deriveBits({ name: 'HKDF', hash: 'SHA-256', salt: ephRaw, info: cat(utf8('CP2 msg'), sid, rid) }, ikm, 256);
+    return aesKey(new Uint8Array(bits));
+  }
+
+  /** Encrypts and signs a JSON object for a contact. Returns the relay text "CP2.<...>". */
+  async function seal(obj, me, to) {
+    const sid = unhex(await idOfMe(me)), rid = unhex(to.id);
+    const json = utf8(JSON.stringify(obj));
+    const padded = new Uint8Array(Math.ceil((4 + json.length) / 64) * 64);
+    new DataView(padded.buffer).setUint32(0, json.length);
+    padded.set(json, 4);
+    const eph = await S.generateKey(EC, true, ['deriveBits']);
+    const ephRaw = new Uint8Array(await S.exportKey('raw', eph.publicKey));
+    const shared = new Uint8Array(await S.deriveBits({ name: 'ECDH', public: await agreePubKey(b64d(to.agreePub)) }, eph.privateKey, 256));
+    const key = await messageKey(shared, ephRaw, sid, rid);
+    shared.fill(0);
+    const header = cat(new Uint8Array(MAGIC), sid, rid, ephRaw);
+    const ivct = await gcmSeal(key, padded, header);
+    padded.fill(0);
+    const body = cat(header, ivct);
+    const sig = new Uint8Array(await S.sign(SIGN, await signPrivKey(me), body));
+    return 'CP2.' + b64e(cat(body, sig));
+  }
+
+  /** Reads sender/recipient ids from relay text without decrypting. Returns null if not a packet. */
+  function peek(text) {
+    if (typeof text !== 'string' || !text.startsWith('CP2.')) return null;
+    let b; try { b = b64d(text.slice(4)); } catch (e) { return null; }
+    if (b.length < HEADER + 12 + 16 + 64 || b[0] !== MAGIC[0] || b[1] !== MAGIC[1]) return null;
+    return { senderId: hex(b.slice(2, 10)), recipientId: hex(b.slice(10, 18)), bytes: b };
+  }
+
+  /**
+   * Opens a packet addressed to me. `findSender(idHex)` returns a parsed card or null.
+   * Known senders: signature checked before decrypting. Unknown senders: only a `join` carrying a
+   * card whose id matches the header and whose key made the signature is accepted.
+   * Returns {obj, sender} or throws.
+   */
+  async function open(text, me, findSender) {
+    const p = peek(text);
+    if (!p) throw new Error('Not a CipherPost message');
+    if (p.recipientId !== await idOfMe(me)) throw new Error('Not for me');
+    const b = p.bytes, body = b.slice(0, b.length - 64), sig = b.slice(b.length - 64);
+    let sender = findSender(p.senderId);
+    if (sender && !(await S.verify(SIGN, await signPubKey(b64d(sender.signPub)), sig, body)))
+      throw new Error('Signature check failed');
+    const ephRaw = b.slice(18, HEADER);
+    const shared = new Uint8Array(await S.deriveBits({ name: 'ECDH', public: await agreePubKey(ephRaw) }, await agreePrivKey(me), 256));
+    const key = await messageKey(shared, ephRaw, b.slice(2, 10), b.slice(10, 18));
+    shared.fill(0);
+    const padded = await gcmOpen(key, b.slice(HEADER, b.length - 64), b.slice(0, HEADER));
+    const len = new DataView(padded.buffer).getUint32(0);
+    if (len > padded.length - 4) throw new Error('Damaged message');
+    const obj = JSON.parse(str(padded.slice(4, 4 + len)));
+    padded.fill(0);
+    if (!sender) {
+      if (obj.t !== 'join' || typeof obj.card !== 'string') throw new Error('Unknown sender');
+      sender = await parseCard(obj.card);
+      if (sender.id !== p.senderId) throw new Error('Join card does not match sender');
+      if (!(await S.verify(SIGN, await signPubKey(b64d(sender.signPub)), sig, body))) throw new Error('Signature check failed');
+    }
+    return { obj, sender };
+  }
+
+  // ------------------------------------------------------------ invites
+  async function joinMac(secret, invId, card) {
+    const k = await S.importKey('raw', secret, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+    return new Uint8Array(await S.sign('HMAC', k, cat(utf8('CP2 join'), invId, utf8(card))));
+  }
+  function inviteCode(card, invIdHex, secret, type) {
+    return 'CP2I.' + b64e(utf8(JSON.stringify({ c: card, id: invIdHex, s: b64e(secret), t: type })));
+  }
+  async function parseInviteCode(text) {
+    const m = /CP2I\.([A-Za-z0-9_-]+)/.exec(text || '');
+    if (!m) return null;
+    const o = JSON.parse(str(b64d(m[1])));
+    if (!/^[0-9a-f]{16}$/.test(o.id) || (o.t !== 'patient' && o.t !== 'staff')) throw new Error('Damaged invite');
+    const secret = b64d(o.s);
+    if (secret.length !== 16) throw new Error('Damaged invite');
+    return { inviter: await parseCard(o.c), id: o.id, secret, type: o.t };
+  }
+
+  // ------------------------------------------------------------ passcode & storage keys
+  const PBKDF2_ROUNDS = 600000;
+  async function passKey(pass, salt, rounds) {
+    const base = await S.importKey('raw', utf8(pass), 'PBKDF2', false, ['deriveBits']);
+    const bits = await S.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations: rounds }, base, 256);
+    return aesKey(new Uint8Array(bits));
+  }
+
+  // ------------------------------------------------------------ files
+  async function encryptBlob(bytes) {
+    const raw = rand(32), key = await aesKey(raw);
+    const blob = await gcmSeal(key, bytes, utf8('CP2 file'));
+    return { blob, key: b64e(raw), sha: b64e(await sha256(blob)) };
+  }
+  async function decryptBlob(blob, keyB64, shaB64) {
+    if (shaB64 && !eq(await sha256(blob), b64d(shaB64))) throw new Error('File was altered');
+    return gcmOpen(await aesKey(b64d(keyB64)), blob, utf8('CP2 file'));
+  }
+
+  async function hmacChain(prev, entry) {
+    return hex(await sha256(utf8(prev + '\u0000' + JSON.stringify(entry))));
+  }
+
+  Object.assign(CP2, {
+    b64e, b64d, cat, eq, hex, unhex, rand, sha256, utf8, str, aesKey, gcmSeal, gcmOpen,
+    newIdentity, idOfMe, userId, safetyCode, makeCard, parseCard, seal, open, peek,
+    joinMac, inviteCode, parseInviteCode, passKey, PBKDF2_ROUNDS, encryptBlob, decryptBlob, hmacChain,
+  });
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+<script>/* CipherPost 2 — encrypted storage. © 2026 RM Software. See DESIGN.md "Storage". */
+(function (G) {
+  'use strict';
+  const CP2 = G.CP2 = G.CP2 || {};
+
+  class MemoryBackend {
+    constructor() { this.m = new Map(); }
+    async get(k) { return this.m.has(k) ? this.m.get(k) : null; }
+    async put(k, v) { this.m.set(k, v); }
+    async del(k) { this.m.delete(k); }
+    async keys() { return [...this.m.keys()]; }
+    async clear() { this.m.clear(); }
+  }
+
+  class IDBBackend {
+    constructor(name = 'cipherpost2') { this.name = name; this.db = null; }
+    async open() {
+      if (this.db) return this.db;
+      this.db = await new Promise((res, rej) => {
+        const r = G.indexedDB.open(this.name, 1);
+        r.onupgradeneeded = () => r.result.createObjectStore('kv');
+        r.onsuccess = () => res(r.result);
+        r.onerror = () => rej(r.error);
+      });
+      return this.db;
+    }
+    async tx(mode, fn) {
+      const db = await this.open();
+      return new Promise((res, rej) => {
+        const t = db.transaction('kv', mode), s = t.objectStore('kv');
+        const req = fn(s);
+        t.oncomplete = () => res(req ? req.result : undefined);
+        t.onerror = () => rej(t.error);
+        t.onabort = () => rej(t.error || new Error('Storage aborted'));
+      });
+    }
+    async get(k) { const v = await this.tx('readonly', s => s.get(k)); return v === undefined ? null : v; }
+    async put(k, v) { await this.tx('readwrite', s => s.put(v, k)); }
+    async del(k) { await this.tx('readwrite', s => s.delete(k)); }
+    async keys() { return this.tx('readonly', s => s.getAllKeys()); }
+    async clear() { await this.tx('readwrite', s => s.clear()); }
+  }
+
+  class WrongPasscode extends Error { constructor() { super('Wrong passcode'); this.wrongPasscode = true; } }
+  class LockedOut extends Error { constructor(ms) { super('Too many attempts'); this.lockedOut = true; this.waitMs = ms; } }
+  class Erased extends Error { constructor() { super('Too many wrong passcodes — data erased'); this.erased = true; } }
+
+  const MAX_FAILS = 10;
+
+  /** Lockout after the 5th wrong passcode: 30 s, doubling, capped at 15 min. */
+  function lockoutMs(fails) { return fails < 5 ? 0 : Math.min(15 * 60000, 30000 * 2 ** Math.min(fails - 5, 5)); }
+
+  class Store {
+    /** device: optional {seal(Uint8Array)→Promise<Uint8Array>, open(...)} binding data to this phone. */
+    constructor(backend, device, clock) {
+      this.b = backend; this.device = device || null; this.now = clock || (() => Date.now());
+      this.dek = null; this.key = null;
+    }
+    async meta() { const m = await this.b.get('meta'); return m ? JSON.parse(m) : null; }
+    async writeMeta(m) { await this.b.put('meta', JSON.stringify(m)); }
+    async exists() { return !!(await this.meta()); }
+    isOpen() { return !!this.key; }
+
+    async wrap(pass, rounds) {
+      const salt = CP2.rand(16);
+      const kek = await CP2.passKey(pass, salt, rounds);
+      let w = await CP2.gcmSeal(kek, this.dek, CP2.utf8('CP2 dek'));
+      if (this.device) w = await this.device.seal(w);
+      return { salt: CP2.b64e(salt), rounds, wrapped: CP2.b64e(w) };
+    }
+
+    async create(pass, publicId, opts = {}) {
+      await this.b.clear();
+      this.dek = CP2.rand(32);
+      this.key = await CP2.aesKey(this.dek);
+      const m = Object.assign(await this.wrap(pass, opts.rounds || CP2.PBKDF2_ROUNDS),
+        { v: 2, id: publicId, fails: 0, lockoutUntil: 0, wipe: opts.wipe !== false, device: !!this.device, created: this.now() });
+      await this.writeMeta(m);
+    }
+
+    async unlock(pass) {
+      const m = await this.meta();
+      if (!m) throw new Error('No data');
+      const wait = (m.lockoutUntil || 0) - this.now();
+      if (wait > 0) throw new LockedOut(wait);
+      let dek;
+      try {
+        let w = CP2.b64d(m.wrapped);
+        if (m.device) {
+          if (!this.device) throw new Error('This data can only be opened in the CipherPost app on its own phone');
+          w = await this.device.open(w);
+        }
+        const kek = await CP2.passKey(pass, CP2.b64d(m.salt), m.rounds);
+        try { dek = await CP2.gcmOpen(kek, w, CP2.utf8('CP2 dek')); } catch (e) { throw new WrongPasscode(); }
+      } catch (e) {
+        if (!e.wrongPasscode) throw e;
+        m.fails = (m.fails || 0) + 1;
+        m.lockoutUntil = this.now() + lockoutMs(m.fails);
+        if (m.fails >= MAX_FAILS && m.wipe) { await this.erase(); throw new Erased(); }
+        await this.writeMeta(m);
+        throw e;
+      }
+      const hadFails = m.fails || 0;
+      m.fails = 0; m.lockoutUntil = 0;
+      await this.writeMeta(m);
+      this.dek = dek; this.key = await CP2.aesKey(dek);
+      return { hadFails };
+    }
+
+    async unlockWithDek(dek) {
+      if (!(await this.meta())) throw new Error('No data');
+      this.dek = new Uint8Array(dek); this.key = await CP2.aesKey(this.dek);
+      // proves the key is right before anyone relies on it
+      await this.get('state');
+    }
+
+    exportDek() { if (!this.dek) throw new Error('Locked'); return new Uint8Array(this.dek); }
+
+    lock() { if (this.dek) this.dek.fill(0); this.dek = null; this.key = null; }
+
+    async changePasscode(oldPass, newPass) {
+      const m = await this.meta();
+      const saved = { dek: this.dek, key: this.key };
+      const probe = new Store(this.b, this.device, this.now);
+      await probe.unlock(oldPass); // throws WrongPasscode (and counts it)
+      probe.lock();
+      this.dek = saved.dek; this.key = saved.key;
+      Object.assign(m, await this.wrap(newPass, m.rounds), { fails: 0, lockoutUntil: 0 });
+      await this.writeMeta(m);
+    }
+
+    async setWipe(on) { const m = await this.meta(); m.wipe = !!on; await this.writeMeta(m); }
+
+    async get(name) {
+      if (!this.key) throw new Error('Locked');
+      const v = await this.b.get('r:' + name);
+      if (!v) return null;
+      return JSON.parse(CP2.str(await CP2.gcmOpen(this.key, v, CP2.utf8('r:' + name))));
+    }
+    async put(name, obj) {
+      if (!this.key) throw new Error('Locked');
+      await this.b.put('r:' + name, await CP2.gcmSeal(this.key, CP2.utf8(JSON.stringify(obj)), CP2.utf8('r:' + name)));
+    }
+    async getBlob(name) {
+      if (!this.key) throw new Error('Locked');
+      const v = await this.b.get('b:' + name);
+      return v ? CP2.gcmOpen(this.key, v, CP2.utf8('b:' + name)) : null;
+    }
+    async putBlob(name, bytes) {
+      if (!this.key) throw new Error('Locked');
+      await this.b.put('b:' + name, await CP2.gcmSeal(this.key, bytes, CP2.utf8('b:' + name)));
+    }
+    async delBlob(name) { await this.b.del('b:' + name); }
+    async erase() { this.lock(); await this.b.clear(); }
+  }
+
+  Object.assign(CP2, { MemoryBackend, IDBBackend, Store, WrongPasscode, LockedOut, Erased, MAX_FAILS, lockoutMs });
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+<script>/* CipherPost 2 — relay client (ntfy protocol). © 2026 RM Software. See DESIGN.md "Transport".
+   Uses only "simple" requests (GET, and POST without custom headers) so browsers need no CORS preflight. */
+(function (G) {
+  'use strict';
+  const CP2 = G.CP2 = G.CP2 || {};
+
+  class RelayError extends Error { constructor(msg, status) { super(msg); this.status = status; } }
+  class Expired extends Error { constructor() { super('File link expired'); this.expired = true; } }
+
+  class Relay {
+    constructor(fetchImpl) { this.fetch = fetchImpl || G.fetch.bind(G); }
+
+    /** quiet=true marks receipts and re-send requests (tag "q") so a phone's background check does not
+        announce them as new messages. The tag says nothing about content. */
+    async publish(base, topic, text, quiet) {
+      const r = await this.fetch(`${base}/${topic}${quiet ? '?tags=q' : ''}`, { method: 'POST', body: text, cache: 'no-store', referrerPolicy: 'no-referrer' });
+      if (!r.ok) throw new RelayError(r.status === 429 ? 'Relay is busy — will retry' : `Relay error ${r.status}`, r.status);
+      return r.json();
+    }
+
+    /** Uploads bytes as an attachment; returns its download URL. */
+    async upload(base, topic, bytes) {
+      const name = 'cp2-' + CP2.hex(CP2.rand(6)) + '.bin';
+      const r = await this.fetch(`${base}/${topic}?f=${name}`, { method: 'POST', body: bytes, cache: 'no-store', referrerPolicy: 'no-referrer' });
+      if (!r.ok) throw new RelayError(r.status === 413 ? 'File is too large for the relay' : `Relay error ${r.status}`, r.status);
+      const j = await r.json();
+      if (!j.attachment || !j.attachment.url) throw new RelayError('Relay did not store the file', 0);
+      return j.attachment.url;
+    }
+
+    /** Returns message events after `since` (a relay message id, or 'all'). */
+    async poll(base, topic, since) {
+      const r = await this.fetch(`${base}/${topic}/json?poll=1&since=${encodeURIComponent(since || 'all')}`, { cache: 'no-store', referrerPolicy: 'no-referrer' });
+      if (!r.ok) throw new RelayError(`Relay error ${r.status}`, r.status);
+      const out = [];
+      for (const line of (await r.text()).split('\n')) {
+        if (!line.trim()) continue;
+        try { const e = JSON.parse(line); if (e.event === 'message') out.push(e); } catch (x) { /* ignore partial line */ }
+      }
+      return out;
+    }
+
+    async download(url) {
+      const r = await this.fetch(url, { cache: 'no-store', referrerPolicy: 'no-referrer' });
+      if (r.status === 404 || r.status === 410) throw new Expired();
+      if (!r.ok) throw new RelayError(`Relay error ${r.status}`, r.status);
+      return new Uint8Array(await r.arrayBuffer());
+    }
+
+    /** Live updates while the page is open. Returns a function that stops listening. */
+    subscribe(base, topic, onEvent) {
+      if (!G.EventSource) return () => {};
+      const es = new G.EventSource(`${base}/${topic}/sse`);
+      es.onmessage = ev => { try { const e = JSON.parse(ev.data); if (e.event === 'message') onEvent(e); } catch (x) { /* ignore */ } };
+      return () => es.close();
+    }
+  }
+
+  Object.assign(CP2, { Relay, RelayError, Expired });
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+<script>/* CipherPost 2 — engine: contacts, invites, delivery, files, audit. © 2026 RM Software. See DESIGN.md. */
+(function (G) {
+  'use strict';
+  const CP2 = G.CP2 = G.CP2 || {};
+
+  const HOUR = 3600e3, DAY = 24 * HOUR, MIN = 60e3;
+  const REPUBLISH_AFTER = 6 * HOUR, GIVE_UP_AFTER = 14 * DAY, INVITE_LIFE = 30 * DAY, SMS_GAP = 15 * MIN;
+  const MAX_FILE = 15 * 1024 * 1024;          // relay attachment limit
+  const MAX_INLINE = 3900;                     // relay text limit is 4,096 bytes
+  const TEXT_MIME = 'application/x-cp2-text';  // long messages travel like files
+  const newId = () => CP2.hex(CP2.rand(16));
+
+  class Engine {
+    /**
+     * opts: {store, relay, role: 'staff'|'patient', page: patient page URL, clock, audit: bool, onChange}
+     */
+    constructor(opts) {
+      this.store = opts.store; this.relay = opts.relay; this.role = opts.role;
+      this.page = (opts.page || '').replace(/#.*$/, '');
+      this.now = opts.clock || (() => Date.now());
+      this.auditOn = opts.audit !== undefined ? !!opts.audit : opts.role === 'staff';
+      this.onChange = opts.onChange || (() => {});
+      this.s = null;            // decrypted state while unlocked
+      this.q = Promise.resolve(); // serializes saves
+      this.syncing = null;
+    }
+
+    // ============================================================ lifecycle
+    isUnlocked() { return !!this.s; }
+
+    async create(name, pass, relayUrl, storeOpts) {
+      const me = await CP2.newIdentity(this.role === 'patient' ? 'Patient' : String(name).trim().slice(0, 60), this.role, relayUrl.replace(/\/+$/, ''));
+      const id = await CP2.idOfMe(me);
+      await this.store.create(pass, id, storeOpts);
+      this.s = { v: 2, me, id, card: await CP2.makeCard(me), contacts: {}, invites: [], outbox: [], seen: null,
+                 settings: { autoLockMin: 5, retentionDays: 0, smsNotices: true }, audit: [], created: this.now() };
+      this.audit('identity_created', `User id ${id.slice(0, 8)}, ${this.role}`);
+      await this.save();
+      return this.s.id;
+    }
+
+    async unlock(pass) {
+      const r = await this.store.unlock(pass);
+      await this.load(r.hadFails ? `Unlocked after ${r.hadFails} wrong passcode(s)` : 'Unlocked with passcode');
+    }
+    async unlockWithDek(dek, how) { await this.store.unlockWithDek(dek); await this.load(how || 'Unlocked with fingerprint, face or phone lock'); }
+    async load(how) {
+      this.s = await this.store.get('state');
+      if (!this.s) throw new Error('Data is damaged');
+      this.audit('unlock', how);
+      await this.applyRetention();
+      await this.save();
+    }
+    lock(reason) {
+      if (this.s && reason) { this.audit('lock', reason); this.save().catch(() => {}); }
+      const done = this.q.then(() => this.store.lock());
+      this.s = null;
+      return done;
+    }
+    async changePasscode(oldPass, newPass) {
+      await this.store.changePasscode(oldPass, newPass);
+      this.audit('passcode_changed', ''); await this.save();
+    }
+    async erase() { this.s = null; await this.store.erase(); }
+
+    /** Saves a snapshot of the state as it is now (even if the engine locks meanwhile). Saves run in order. */
+    save() {
+      const snap = this.s;
+      this.q = this.q.then(async () => {
+        if (!snap) return;
+        await Engine.sealAudit(snap);
+        await this.store.put('state', snap);
+      }).catch(e => { console.error('save failed', e); });
+      return this.q;
+    }
+    changed() { try { this.onChange(); } catch (e) { console.error(e); } }
+
+    // ============================================================ reading state
+    get me() { return this.s.me; }
+    get myId() { return this.s.id; }
+    contact(id) { return this.s.contacts[id] || null; }
+    contacts() { return Object.values(this.s.contacts).sort((a, b) => (b.last || 0) - (a.last || 0)); }
+    messages(cid) { const c = this.contact(cid); return c ? c.msgs : []; }
+    settings() { return this.s.settings; }
+    pendingInvites() {
+      const cutoff = this.now() - INVITE_LIFE;
+      return this.s.invites.filter(i => i.created >= cutoff).sort((a, b) => b.created - a.created);
+    }
+    async mySafetyCode() { return CP2.safetyCode(CP2.b64d(this.s.me.agreePub), CP2.b64d(this.s.me.signPub)); }
+    async safetyCodeOf(cid) { const c = this.contact(cid); return CP2.safetyCode(CP2.b64d(c.agreePub), CP2.b64d(c.signPub)); }
+    unreadCount() { let n = 0; for (const c of Object.values(this.s.contacts)) n += c.unread || 0; return n; }
+    markRead(cid) { const c = this.contact(cid); if (c && c.unread) { c.unread = 0; this.save(); } }
+
+    // ============================================================ settings
+    setSetting(k, v, label) {
+      this.s.settings[k] = v;
+      this.audit('setting_changed', `${label || k}: ${v}`);
+      return this.save();
+    }
+
+    // ============================================================ invites
+    createInvite(type, name, phone, email) {
+      if (this.role !== 'staff') throw new Error('Only staff can invite');
+      if (type !== 'patient' && type !== 'staff') throw new Error('Bad invite type');
+      const id = CP2.hex(CP2.rand(8)), secret = CP2.rand(16);
+      this.s.invites.push({ id, s: CP2.b64e(secret), type, name: String(name).trim().slice(0, 60),
+                            phone: (phone || '').trim(), email: (email || '').trim(), created: this.now() });
+      this.audit(type === 'patient' ? 'patient_invited' : 'colleague_invited', `Invite ${id.slice(0, 8)} for "${name}"`);
+      this.save();
+      return { id, link: `${this.page}#${CP2.inviteCode(this.s.card, id, secret, type)}` };
+    }
+    inviteLink(id) {
+      const i = this.s.invites.find(x => x.id === id);
+      return i ? `${this.page}#${CP2.inviteCode(this.s.card, id, CP2.b64d(i.s), i.type)}` : null;
+    }
+    cancelInvite(id) {
+      this.s.invites = this.s.invites.filter(i => i.id !== id);
+      this.audit('invite_cancelled', `Invite ${id.slice(0, 8)}`);
+      return this.save();
+    }
+
+    /** Checks that an invite may be accepted here (before creating an identity for it). */
+    static checkInviteFor(role, inv) {
+      if (inv.type === 'patient' && role !== 'patient') throw new Error('This invite is for a patient. Open it on the patient\'s phone, in a web browser.');
+      if (inv.type === 'staff' && role !== 'staff') throw new Error('This invite is for staff. Open it on a phone with the CipherPost app.');
+    }
+
+    /** Accepts an invite: adds the inviter (verified) and sends our join through the relay. */
+    async acceptInvite(inv) {
+      Engine.checkInviteFor(this.role, inv);
+      if (inv.inviter.id === this.s.id) throw new Error('That is your own invite.');
+      const existing = this.contact(inv.inviter.id);
+      const c = this.addContact(inv.inviter, inv.inviter.name, 'their invite link');
+      const mac = await CP2.joinMac(inv.secret, CP2.unhex(inv.id), this.s.card);
+      await this.queue(c.id, { t: 'join', id: newId(), inv: inv.id, card: this.s.card, mac: CP2.b64e(mac) }, true);
+      this.audit('invite_accepted', `From ${this.label(c)}`);
+      await this.save();
+      this.flush();
+      return { contact: c, existed: !!existing };
+    }
+
+    addContact(card, name, via) {
+      let c = this.s.contacts[card.id];
+      if (!c) {
+        c = this.s.contacts[card.id] = { id: card.id, msgs: [], unread: 0, created: this.now(), last: this.now() };
+        this.audit('contact_connected', `${name} (${card.id.slice(0, 8)}), ${card.role}, verified automatically via ${via}`);
+      }
+      Object.assign(c, { name, role: card.role, agreePub: card.agreePub, signPub: card.signPub, inbox: card.inbox,
+                         relay: card.relay, card: card.card, verified: true });
+      return c;
+    }
+    label(c) { return `"${c.name}" (${c.id.slice(0, 8)})`; }
+
+    // ============================================================ sending
+    async send(cid, text) {
+      const c = this.contact(cid);
+      text = String(text || '');
+      if (!c || !text.trim()) return null;
+      const m = { id: newId(), out: true, ts: this.now(), text, status: 'sending' };
+      c.msgs.push(m); c.last = m.ts;
+      const obj = { t: 'msg', id: m.id, ts: m.ts, text };
+      const sealed = await CP2.seal(obj, this.s.me, c);
+      if (sealed.length > MAX_INLINE) {
+        const bytes = CP2.utf8(text);
+        await this.store.putBlob('f:' + m.id, bytes);
+        m.long = true;
+        await this.queueFile(c, m, { name: 'message.txt', mime: TEXT_MIME, size: bytes.length, cap: '' });
+      } else {
+        this.enqueue(c, m.id, sealed, true);
+      }
+      this.audit('message_sent', `To ${this.label(c)}, ref ${m.id.slice(0, 8)}`);
+      await this.save(); this.changed(); this.flush();
+      return { msg: m, smsNotice: this.smsNoticeDue(c) };
+    }
+
+    async sendFile(cid, file, caption) {
+      const c = this.contact(cid);
+      if (!c) return null;
+      if (file.bytes.length > MAX_FILE) throw new Error('Files can be up to 15 MB');
+      const m = { id: newId(), out: true, ts: this.now(), text: String(caption || ''), status: 'sending',
+                  file: { name: String(file.name || 'file').slice(0, 120), mime: file.mime || 'application/octet-stream', size: file.bytes.length, state: 'ready' } };
+      c.msgs.push(m); c.last = m.ts;
+      await this.store.putBlob('f:' + m.id, file.bytes);
+      await this.queueFile(c, m, { name: m.file.name, mime: m.file.mime, size: m.file.size, cap: m.text });
+      this.audit('file_sent', `To ${this.label(c)}, ${m.file.mime}, ${m.file.size} bytes, ref ${m.id.slice(0, 8)}`);
+      await this.save(); this.changed(); this.flush();
+      return { msg: m, smsNotice: this.smsNoticeDue(c) };
+    }
+
+    /** Files are uploaded when the outbox is flushed (so a failed upload is retried). */
+    async queueFile(c, m, meta) {
+      this.s.outbox.push({ eid: newId(), to: c.id, ack: m.id, upload: { msgId: m.id, meta }, body: null, created: this.now(), sent: 0 });
+    }
+
+    async queue(cid, obj, needsAck) {
+      const c = this.contact(cid);
+      this.enqueue(c, needsAck ? obj.id : null, await CP2.seal(obj, this.s.me, c), needsAck);
+    }
+    enqueue(c, ackId, body, needsAck) {
+      this.s.outbox.push({ eid: newId(), to: c.id, ack: needsAck ? ackId : null, body, created: this.now(), sent: 0, quiet: !needsAck });
+    }
+
+    /** Publishes what is due: new items, and unacknowledged items every 6 h for up to 14 days. */
+    flush() {
+      if (this.flushing) { this.flushAgain = true; return this.flushing; }
+      this.flushing = (async () => {
+        do {
+          this.flushAgain = false;
+          for (const e of [...(this.s ? this.s.outbox : [])]) {
+            if (!this.s) return;
+            const c = this.contact(e.to);
+            const age = this.now() - e.created;
+            if (!c || (e.ack && age > GIVE_UP_AFTER)) { this.dropEntry(e, 'failed'); continue; }
+            if (e.sent && this.now() - e.sent < REPUBLISH_AFTER) continue;
+            try {
+              if (e.upload && !e.body) await this.doUpload(c, e);
+              await this.relay.publish(c.relay, c.inbox, e.body, !!e.quiet);
+              e.sent = this.now(); e.tries = (e.tries || 0) + 1;
+              if (!e.ack) this.s.outbox = this.s.outbox.filter(x => x !== e);
+              else this.setStatus(c, e.ack, s => s === 'sending' ? 'sent' : s);
+            } catch (err) {
+              e.lastError = err.message;
+              if (err.status === 413) { this.dropEntry(e, 'failed'); continue; }
+              break; // relay unreachable or busy: try again on the next flush
+            }
+          }
+          await this.save(); this.changed();
+        } while (this.flushAgain);
+      })().finally(() => { this.flushing = null; });
+      return this.flushing;
+    }
+
+    async doUpload(c, e) {
+      const bytes = await this.store.getBlob('f:' + e.upload.msgId);
+      if (!bytes) throw Object.assign(new Error('File no longer on this device'), { status: 413 });
+      const enc = await CP2.encryptBlob(bytes);
+      const url = await this.relay.upload(c.relay, c.inbox, enc.blob);
+      const m = c.msgs.find(x => x.id === e.upload.msgId);
+      const meta = e.upload.meta;
+      e.body = await CP2.seal({ t: 'file', id: e.upload.msgId, ts: m ? m.ts : this.now(), name: meta.name, mime: meta.mime,
+                                size: meta.size, cap: meta.cap, url, key: enc.key, sha: enc.sha }, this.s.me, c);
+    }
+
+    dropEntry(e, status) {
+      this.s.outbox = this.s.outbox.filter(x => x !== e);
+      const c = this.contact(e.to);
+      if (c && e.ack) this.setStatus(c, e.ack, s => s === 'delivered' ? s : status);
+    }
+    setStatus(c, id, f) { const m = c.msgs.find(x => x.id === id && x.out); if (m) m.status = f(m.status); }
+
+    // ============================================================ SMS notices (staff → patient)
+    smsNoticeDue(c) {
+      if (this.role !== 'staff' || c.role !== 'patient' || !c.phone || !this.s.settings.smsNotices) return null;
+      if (this.now() - (c.lastSms || 0) < SMS_GAP && !c.repliedSinceSms) return null;
+      return { phone: c.phone, text: `You have a new secure message from ${this.s.me.name}. Open: ${this.page}` };
+    }
+    noteSmsSent(cid) { const c = this.contact(cid); if (c) { c.lastSms = this.now(); c.repliedSinceSms = false; this.audit('sms_notice', `To ${this.label(c)}`); this.save(); } }
+
+    // ============================================================ receiving
+    /** Fetches new relay messages, handles them, then flushes the outbox. */
+    sync() {
+      if (!this.s) return Promise.resolve({ received: 0 });
+      if (this.syncing) return this.syncing;
+      this.syncing = (async () => {
+        const evs = await this.relay.poll(this.s.me.relay, this.s.me.inbox, this.s.seen || 'all');
+        let received = 0;
+        for (const ev of evs) {
+          if (!this.s) break;
+          received += await this.handle(ev.message);
+          this.s.seen = ev.id;
+        }
+        await this.sendAcks();
+        await this.save();
+        if (received) this.changed();
+        await this.flush();
+        return { received };
+      })().finally(() => { this.syncing = null; });
+      return this.syncing;
+    }
+
+    /** Live event from the relay subscription. */
+    async live(ev) {
+      if (!this.s) return;
+      const n = await this.handle(ev.message);
+      if (this.s) this.s.seen = ev.id;
+      await this.sendAcks(); await this.save(); if (n) this.changed(); this.flush();
+    }
+
+    /** Handles one relay text. Returns the number of new user-visible items. */
+    async handle(text) {
+      if (!this.s || !CP2.peek(text)) return 0;
+      let r;
+      try { r = await CP2.open(text, this.s.me, id => { const c = this.contact(id); return c && c.verified ? c : null; }); }
+      catch (e) { return 0; } // not for us, unknown sender, or tampered: ignore
+      const o = r.obj;
+      this.pendingAcks = this.pendingAcks || {};
+      const ackLater = (cid, id) => { (this.pendingAcks[cid] = this.pendingAcks[cid] || new Set()).add(id); };
+      if (o.t === 'join') return this.onJoin(r.sender, o, ackLater);
+      const c = this.contact(r.sender.id);
+      if (!c) return 0;
+      c.lastInbound = this.now();
+      switch (o.t) {
+        case 'msg': {
+          ackLater(c.id, o.id);
+          if (c.msgs.some(m => m.id === o.id)) return 0;
+          c.msgs.push({ id: o.id, out: false, ts: o.ts, rx: this.now(), text: String(o.text || '') });
+          c.repliedSinceSms = true;
+          c.last = this.now(); c.unread = (c.unread || 0) + 1;
+          this.audit('message_received', `From ${this.label(c)}, ref ${o.id.slice(0, 8)}`);
+          return 1;
+        }
+        case 'file': {
+          let m = c.msgs.find(x => x.id === o.id);
+          const isNew = !m;
+          // acknowledge only once we really have the file, so an expired link leads to a re-send
+          if (m && (!m.file || m.file.state === 'ready')) { ackLater(c.id, o.id); return 0; }
+          if (!m) {
+            m = { id: o.id, out: false, ts: o.ts, rx: this.now(), text: String(o.cap || ''),
+                  file: { name: String(o.name || 'file'), mime: String(o.mime || 'application/octet-stream'), size: o.size | 0 } };
+            c.msgs.push(m); c.last = this.now(); c.unread = (c.unread || 0) + 1;
+          }
+          Object.assign(m.file, { url: o.url, key: o.key, sha: o.sha, state: 'downloading' });
+          await this.fetchFile(c, m);
+          if (!m.file || m.file.state === 'ready') ackLater(c.id, o.id);
+          if (isNew) this.audit(m.file ? 'file_received' : 'message_received', `From ${this.label(c)}, ${o.mime}, ${o.size} bytes, ref ${o.id.slice(0, 8)}`);
+          return isNew ? 1 : 0;
+        }
+        case 'ack': {
+          for (const id of (o.ids || [])) {
+            this.setStatus(c, id, () => 'delivered');
+            this.s.outbox = this.s.outbox.filter(e => !(e.to === c.id && e.ack === id));
+          }
+          return 0;
+        }
+        case 'resend': {
+          const m = c.msgs.find(x => x.id === o.id && x.out && (x.file || x.long));
+          if (!m) return 0;
+          const meta = m.long ? { name: 'message.txt', mime: TEXT_MIME, size: CP2.utf8(m.text).length, cap: '' }
+                              : { name: m.file.name, mime: m.file.mime, size: m.file.size, cap: m.text };
+          const e = this.s.outbox.find(x => x.to === c.id && x.ack === m.id);
+          if (e) Object.assign(e, { upload: { msgId: m.id, meta }, body: null, sent: 0 });   // upload again now
+          else await this.queueFile(c, m, meta);
+          return 0;
+        }
+        default: return 0;
+      }
+    }
+
+    async onJoin(sender, o, ackLater) {
+      const known = this.contact(sender.id);
+      if (known) { ackLater(known.id, o.id); return 0; }  // repeat of a join we already accepted
+      const inv = this.s.invites.find(i => i.id === o.inv);
+      if (!inv || this.now() - inv.created > INVITE_LIFE) { this.audit('join_rejected', `No open invite ${String(o.inv).slice(0, 8)}`); return 0; }
+      if (inv.type !== sender.role) { this.audit('join_rejected', `Invite ${inv.id.slice(0, 8)} was for a ${inv.type}`); return 0; }
+      const expect = await CP2.joinMac(CP2.b64d(inv.s), CP2.unhex(inv.id), sender.card);
+      if (!CP2.eq(expect, CP2.b64d(o.mac || ''))) { this.audit('join_rejected', `Invite ${inv.id.slice(0, 8)} check failed`); return 0; }
+      const c = this.addContact(sender, inv.name, `invite ${inv.id.slice(0, 8)}`);
+      c.phone = inv.phone; c.email = inv.email; c.unread = (c.unread || 0) + 1; c.joined = this.now();
+      this.s.invites = this.s.invites.filter(i => i !== inv);
+      ackLater(c.id, o.id);
+      return 1;
+    }
+
+    async sendAcks() {
+      if (!this.s) return;
+      const p = this.pendingAcks; this.pendingAcks = {};
+      for (const cid in (p || {})) {
+        const c = this.contact(cid);
+        if (c) this.enqueue(c, null, await CP2.seal({ t: 'ack', ids: [...p[cid]] }, this.s.me, c), false);
+      }
+    }
+
+    // ============================================================ files
+    async fetchFile(c, m) {
+      try {
+        const blob = await this.relay.download(m.file.url);
+        const bytes = await CP2.decryptBlob(blob, m.file.key, m.file.sha);
+        if (m.file.mime === TEXT_MIME) { m.text = CP2.str(bytes); delete m.file; return; }
+        await this.store.putBlob('f:' + m.id, bytes);
+        m.file.state = 'ready';
+        delete m.file.key; delete m.file.url; delete m.file.sha;
+      } catch (e) {
+        if (e.expired) {
+          m.file.state = 'requested';
+          await this.queue(c.id, { t: 'resend', id: m.id }, false);
+        } else {
+          m.file.state = 'failed'; m.file.error = e.message;
+        }
+      }
+    }
+
+    /** Retries files that failed to download (e.g. the relay was briefly unreachable). */
+    async retryFile(cid, msgId) {
+      const c = this.contact(cid), m = c && c.msgs.find(x => x.id === msgId);
+      if (!m || !m.file || m.file.state === 'ready') return;
+      if (m.file.url) await this.fetchFile(c, m);
+      else { m.file.state = 'requested'; await this.queue(c.id, { t: 'resend', id: m.id }, false); }
+      await this.save(); this.changed(); this.flush();
+    }
+
+    async fileBytes(cid, msgId, purpose) {
+      const c = this.contact(cid), m = c && c.msgs.find(x => x.id === msgId);
+      if (!m || !m.file) throw new Error('No such file');
+      const b = await this.store.getBlob('f:' + msgId);
+      if (!b) throw new Error('This file is not on this device');
+      if (purpose) { this.audit(purpose === 'save' ? 'file_saved' : 'file_viewed', `${m.file.mime} ${m.out ? 'to' : 'from'} ${this.label(c)}, ref ${msgId.slice(0, 8)}${purpose === 'save' ? ', unencrypted copy outside CipherPost' : ''}`); await this.save(); }
+      return b;
+    }
+
+    // ============================================================ deleting & retention
+    async deleteMessage(cid, msgId) {
+      const c = this.contact(cid); if (!c) return;
+      c.msgs = c.msgs.filter(m => m.id !== msgId);
+      await this.store.delBlob('f:' + msgId);
+      this.audit('message_deleted', `${this.label(c)}, ref ${msgId.slice(0, 8)}`);
+      await this.save(); this.changed();
+    }
+    async deleteContact(cid) {
+      const c = this.contact(cid); if (!c) return;
+      for (const m of c.msgs) await this.store.delBlob('f:' + m.id);
+      delete this.s.contacts[cid];
+      this.s.outbox = this.s.outbox.filter(e => e.to !== cid);
+      this.audit('contact_deleted', `${this.label(c)} and ${c.msgs.length} message(s)`);
+      await this.save(); this.changed();
+    }
+    async applyRetention() {
+      const days = this.s.settings.retentionDays | 0;
+      if (!days) return 0;
+      const cutoff = this.now() - days * DAY;
+      let n = 0;
+      for (const c of Object.values(this.s.contacts)) {
+        const keep = [];
+        for (const m of c.msgs) {
+          if ((m.rx || m.ts) < cutoff && m.status !== 'sending') { n++; await this.store.delBlob('f:' + m.id); } else keep.push(m);
+        }
+        c.msgs = keep;
+      }
+      if (n) this.audit('retention_purge', `${n} message(s) older than ${days} days deleted`);
+      return n;
+    }
+
+    // ============================================================ audit (staff)
+    audit(event, detail) {
+      if (!this.auditOn || !this.s) return;
+      this.s.audit.push({ t: this.now(), e: event, d: String(detail || ''), p: null, h: null });
+    }
+    /** Fills in the hash chain for new entries (async crypto, so done just before each save). */
+    static async sealAudit(st) {
+      const a = st.audit || [];
+      for (let i = 0; i < a.length; i++) {
+        if (a[i].h) continue;
+        a[i].p = i ? a[i - 1].h : '';
+        a[i].h = await CP2.hmacChain(a[i].p, { t: a[i].t, e: a[i].e, d: a[i].d });
+      }
+      if (a.length > 20000) st.audit = a.slice(a.length - 20000);
+    }
+    /** Returns -1 if every entry links to the one before it, else the index of the first bad entry. */
+    async verifyAudit() {
+      await Engine.sealAudit(this.s);
+      const a = this.s.audit;
+      for (let i = 0; i < a.length; i++) {
+        const p = i ? a[i - 1].h : a[i].p;
+        if (a[i].p !== p) return i;
+        if (await CP2.hmacChain(a[i].p, { t: a[i].t, e: a[i].e, d: a[i].d }) !== a[i].h) return i;
+      }
+      return -1;
+    }
+    async auditCsv() {
+      this.audit('audit_exported', 'Audit log exported');
+      await this.save();
+      const q = s => /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+      const rows = ['timestamp,event,detail,prev_hash,hash'];
+      for (const e of this.s.audit) rows.push([new Date(e.t).toISOString(), e.e, q(e.d), e.p, e.h].join(','));
+      rows.push(`# user,${q(this.s.me.name)} (${this.s.id.slice(0, 8)}),integrity,${(await this.verifyAudit()) < 0 ? 'verified' : 'FAILED'}`);
+      return rows.join('\n') + '\n';
+    }
+  }
+
+  Object.assign(CP2, { Engine, TEXT_MIME, MAX_FILE, REPUBLISH_AFTER, GIVE_UP_AFTER, INVITE_LIFE, SMS_GAP });
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+<script>/* CipherPost 2 — platform adapters: Android app shell (staff) or web browser (patients). © 2026 RM Software. */
+(function (G) {
+  'use strict';
+  const CP2 = G.CP2 = G.CP2 || {};
+  const OFFICIAL_PAGE = 'https://securedmessage.github.io/cipherpost/';
+  const DEFAULT_RELAY = 'https://ntfy.sh';
+
+  // ------------------------------------------------------------ Android shell bridge
+  let seq = 0;
+  const waiting = new Map();
+  G.CPNativeCallback = (id, json) => {
+    const w = waiting.get(id); if (!w) return;
+    waiting.delete(id);
+    let r; try { r = JSON.parse(json); } catch (e) { r = { error: 'bad reply' }; }
+    if (r && r.error) w.reject(new Error(r.error)); else w.resolve(r ? r.value : null);
+  };
+  function native(method, ...args) {
+    return new Promise((resolve, reject) => {
+      const id = 'c' + (++seq);
+      waiting.set(id, { resolve, reject });
+      try { G.CPNative.call(method, JSON.stringify(args), id); } catch (e) { waiting.delete(id); reject(e); }
+    });
+  }
+
+  function androidPlatform() {
+    return {
+      kind: 'android', role: 'staff', page: OFFICIAL_PAGE, defaultRelay: DEFAULT_RELAY,
+      device: {
+        seal: async b => CP2.b64d(await native('deviceSeal', CP2.b64e(b))),
+        open: async b => CP2.b64d(await native('deviceOpen', CP2.b64e(b))),
+      },
+      bio: {
+        available: () => native('bioAvailable'),
+        enabled: () => native('bioEnabled'),
+        enable: dek => native('bioEnable', CP2.b64e(dek)),
+        unlock: async () => { const v = await native('bioUnlock'); return v ? CP2.b64d(v) : null; },
+        disable: () => native('bioDisable'),
+      },
+      sendSms: (phone, text) => native('sendSms', phone, text),
+      shareText: (text, subject) => native('shareText', text, subject || ''),
+      sendEmail: (to, subject, body) => native('sendEmail', to, subject, body),
+      saveFile: (name, mime, bytes) => native('saveFile', name, mime, CP2.b64e(bytes)),
+      viewFile: async (name, mime, bytes) => {
+        if (mime === 'application/pdf') return native('viewPdf', name, CP2.b64e(bytes));
+        return null; // images and text are shown inside the app
+      },
+      setInbox: (relay, topic) => native('setInbox', relay, topic),
+      clearInbox: () => native('setInbox', '', ''),
+      version: () => native('version'),
+      storageName: 'cipherpost2-staff',
+    };
+  }
+
+  // ------------------------------------------------------------ Web (patients)
+  function webPlatform() {
+    const page = G.location ? G.location.origin + G.location.pathname : OFFICIAL_PAGE;
+    async function shareText(text, subject) {
+      if (G.navigator.share) { try { await G.navigator.share({ text, title: subject }); return 'shared'; } catch (e) { if (e.name === 'AbortError') return 'cancelled'; } }
+      try { await G.navigator.clipboard.writeText(text); return 'copied'; } catch (e) { return 'failed'; }
+    }
+    return {
+      kind: 'web', role: 'patient', page, defaultRelay: DEFAULT_RELAY, device: null, bio: null,
+      sendSms: async () => 'unavailable',
+      shareText,
+      sendEmail: async (to, subject, body) => { G.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; return 'opened'; },
+      saveFile: async (name, mime, bytes) => {
+        const url = URL.createObjectURL(new Blob([bytes], { type: mime }));
+        const a = G.document.createElement('a'); a.href = url; a.download = name;
+        G.document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+        return true;
+      },
+      viewFile: async (name, mime, bytes) => {
+        if (mime !== 'application/pdf') return null;
+        const url = URL.createObjectURL(new Blob([bytes], { type: mime }));
+        G.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 120000);
+        return true;
+      },
+      setInbox: async () => {}, clearInbox: async () => {}, version: async () => '2.0',
+      storageName: 'cipherpost2',
+    };
+  }
+
+  // ------------------------------------------------------------ Windows desktop (Electron shell, staff)
+  function desktopPlatform() {
+    const D = G.CPDesktop;
+    return {
+      kind: 'desktop', role: 'staff', page: OFFICIAL_PAGE, defaultRelay: DEFAULT_RELAY,
+      device: {   // Windows DPAPI via Electron safeStorage: data opens only for this Windows user on this PC
+        seal: async b => CP2.b64d(await D.deviceSeal(CP2.b64e(b))),
+        open: async b => CP2.b64d(await D.deviceOpen(CP2.b64e(b))),
+      },
+      bio: null,
+      sendSms: async () => 'unavailable',
+      shareText: async (text) => { await D.copyText(text); return 'copied'; },
+      sendEmail: (to, subject, body) => D.openExternal(`mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`),
+      saveFile: (name, mime, bytes) => D.saveFile(name, CP2.b64e(bytes)),
+      viewFile: async (name, mime, bytes) => (mime === 'application/pdf' ? D.viewPdf(name, CP2.b64e(bytes)) : null),
+      notify: (title, body) => D.notify(title, body),
+      setInbox: async () => {}, clearInbox: async () => {},
+      version: () => D.version(),
+      storageName: 'cipherpost2-desktop',
+    };
+  }
+
+  CP2.platform = () => (G.CPNative ? androidPlatform() : G.CPDesktop ? desktopPlatform() : webPlatform());
+  Object.assign(CP2, { OFFICIAL_PAGE, DEFAULT_RELAY });
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+<script>/* CipherPost 2 — interface shared by the Android app, the Windows app (staff) and the patient web page.
+   © 2026 RM Software. See DESIGN.md. Text from other people is always inserted as text, never as HTML. */
+(function (G) {
+  'use strict';
+  const CP2 = G.CP2;
+  const D = G.document;
+  const P = CP2.platform();
+  const STAFF = P.role === 'staff';
+  const app = D.getElementById('app');
+  const relay = new CP2.Relay();
+  const store = new CP2.Store(new CP2.IDBBackend(P.storageName), P.device);
+  const E = new CP2.Engine({ store, relay, role: P.role, page: P.page, onChange: () => scheduleRender() });
+  G.CP2App = { engine: E, platform: P }; // for tests
+
+  let view = { name: 'home' };     // home | chat | settings | audit | help | file
+  let pendingLink = null;          // an invite (or other CipherPost link) waiting to be handled
+  let lastActive = Date.now(), hiddenAt = 0, timers = [], unsubscribe = () => {}, bioTried = false;
+  const blobUrls = new Set();
+
+  // ============================================================ helpers
+  function h(tag, attrs, ...kids) {
+    const e = D.createElement(tag);
+    for (const k in (attrs || {})) {
+      const v = attrs[k];
+      if (v === null || v === undefined || v === false) continue;
+      if (k === 'class') e.className = v;
+      else if (k === 'style') e.style.cssText = v;
+      else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+      else e.setAttribute(k, v === true ? '' : v);
+    }
+    for (const c of kids.flat(3)) if (c !== null && c !== undefined && c !== false) e.append(c.nodeType ? c : D.createTextNode(String(c)));
+    return e;
+  }
+  function show(...nodes) { freeBlobs(); app.replaceChildren(...nodes); app.scrollTop = 0; G.scrollTo(0, 0); }
+  function toast(t, ms) { const d = h('div', { class: 'toast', role: 'status' }, t); D.body.append(d); setTimeout(() => d.remove(), ms || 2600); }
+  function freeBlobs() { for (const u of blobUrls) URL.revokeObjectURL(u); blobUrls.clear(); }
+  function blobUrl(bytes, mime) { const u = URL.createObjectURL(new Blob([bytes], { type: mime })); blobUrls.add(u); return u; }
+  const fmtTime = ts => { const d = new Date(ts), n = new Date(); return d.toDateString() === n.toDateString() ? d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : d.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); };
+  const fmtSize = b => b < 1024 ? b + ' B' : b < 1048576 ? Math.round(b / 1024) + ' KB' : (b / 1048576).toFixed(1) + ' MB';
+  const fileIcon = m => !m ? '📎' : m.startsWith('image/') ? '🖼️' : m === 'application/pdf' ? '📄' : m.startsWith('text/') ? '📝' : '📎';
+  const firstName = n => String(n || '').split(' ')[0];
+
+  function modal(title, body, buttons) {
+    return new Promise(resolve => {
+      const close = v => { wrap.remove(); resolve(v); };
+      const wrap = h('div', { class: 'scrim', onclick: e => { if (e.target === wrap) close(null); } },
+        h('div', { class: 'sheet', role: 'dialog', 'aria-label': title },
+          h('h2', null, title),
+          body,
+          h('div', { class: 'sheet-buttons' }, (buttons || [{ label: 'OK', value: true, primary: true }]).map(b =>
+            h('button', { class: b.primary ? 'primary' : b.danger ? 'danger' : '', onclick: async () => {
+              if (b.check) { const ok = await b.check(); if (!ok) return; }
+              close(b.value);
+            } }, b.label)))));
+      D.body.append(wrap);
+      const f = wrap.querySelector('input,textarea'); if (f) setTimeout(() => f.focus(), 50);
+    });
+  }
+  const confirmBox = (title, text, ok, danger) => modal(title, h('p', null, text), [{ label: 'Cancel', value: false }, { label: ok || 'OK', value: true, primary: !danger, danger }]);
+  const alertBox = (title, text) => modal(title, h('p', null, text));
+
+  function passProblem(p) {
+    if (p.length < 6) return 'Use at least 6 digits';
+    if (!/^\d+$/.test(p)) return 'Digits only';
+    const same = [...p].every(c => c === p[0]);
+    const up = [...p].every((c, i) => !i || c.charCodeAt(0) === p.charCodeAt(i - 1) + 1);
+    const down = [...p].every((c, i) => !i || c.charCodeAt(0) === p.charCodeAt(i - 1) - 1);
+    return same || up || down ? 'Too easy to guess — avoid repeated or sequential digits' : null;
+  }
+  const pinInput = ph => h('input', { class: 'pin', type: 'password', inputmode: 'numeric', autocomplete: 'off', placeholder: ph, 'aria-label': ph });
+  const footer = () => h('p', { class: 'footer' }, '© 2026 RM Software · ', h('a', { href: '#', onclick: e => { e.preventDefault(); about(); } }, 'About'));
+
+  function header(title, sub, left, right) {
+    return h('header', { class: 'bar' }, left || null, h('div', { class: 'bar-title' }, h('div', { class: 't1' }, title), sub ? h('div', { class: 't2' }, sub) : null), right || null);
+  }
+  const iconBtn = (label, onclick, text) => h('button', { class: 'icon', 'aria-label': label, title: label, onclick }, text);
+
+  // ============================================================ links (invites)
+  function takeLinkText(text) {
+    if (!text) return;
+    if (/CP2I\./.test(text)) pendingLink = text;
+  }
+  G.CPApp = {
+    openLink: text => { takeLinkText(text); route(); },
+    back: () => { if (D.querySelector('.scrim')) { D.querySelector('.scrim').remove(); return true; } if (E.isUnlocked() && view.name !== 'home') { go({ name: 'home' }); return true; } return false; },
+  };
+  if (P.kind === 'web') {
+    const fromHash = () => {
+      const raw = decodeURIComponent((G.location.hash || '').slice(1));
+      if (raw) { takeLinkText(raw); G.history.replaceState(null, '', G.location.pathname + G.location.search); }
+    };
+    fromHash();
+    G.addEventListener('hashchange', () => { fromHash(); route(); });
+  }
+
+  // ============================================================ routing
+  async function route() {
+    if (!(await store.exists())) {
+      if (STAFF) return screenSetupStaff();
+      return pendingLink ? screenJoin(pendingLink) : screenNoInvite();
+    }
+    if (!E.isUnlocked()) return screenLock();
+    if (pendingLink) { const l = pendingLink; pendingLink = null; return handleInviteWhileUnlocked(l); }
+    render();
+  }
+  function go(v) { view = v; render(); }
+  let renderQueued = false;
+  function scheduleRender() {
+    if (renderQueued) return;
+    renderQueued = true;
+    requestAnimationFrame(() => { renderQueued = false; if (E.isUnlocked()) render(true); });
+  }
+  function render(soft) {
+    if (!E.isUnlocked()) return;
+    if (view.name === 'chat' && E.contact(view.cid)) return soft ? renderThread() : screenChat(view.cid);
+    if (soft && (view.name === 'settings' || view.name === 'file' || view.name === 'help' || view.name === 'audit')) return;
+    if (view.name === 'settings') return screenSettings();
+    if (view.name === 'audit') return screenAudit();
+    if (view.name === 'help') return screenHelp();
+    view = { name: 'home' };
+    return screenHome();
+  }
+
+  // ============================================================ first run
+  function screenSetupStaff() {
+    const name = h('input', { placeholder: 'Your name (e.g. Dr. Sarah Lee)', autocomplete: 'name', 'aria-label': 'Your name' });
+    const p1 = pinInput('Choose a passcode'), p2 = pinInput('Repeat passcode');
+    const relayIn = h('input', { value: P.defaultRelay, 'aria-label': 'Relay server', spellcheck: 'false' });
+    const err = h('p', { class: 'err', role: 'alert' });
+    const btn = h('button', { class: 'primary', onclick: async () => {
+      err.textContent = '';
+      if (!name.value.trim()) return (err.textContent = 'Enter your name');
+      const pp = passProblem(p1.value); if (pp) return (err.textContent = pp);
+      if (p1.value !== p2.value) return (err.textContent = "Passcodes don't match");
+      const r = relayIn.value.trim().replace(/\/+$/, '');
+      if (!/^https:\/\/[^\s/]+/.test(r) && !/^http:\/\/127\.0\.0\.1:\d+$/.test(r)) return (err.textContent = 'The relay must be an https:// address');
+      btn.disabled = true; btn.textContent = 'Creating your keys…';
+      try { await E.create(name.value, p1.value, r); await afterUnlock(); toast('Welcome — invite a patient or colleague to start'); }
+      catch (e) { err.textContent = e.message; btn.disabled = false; btn.textContent = 'Create my account'; }
+    } }, 'Create my account');
+    show(h('main', { class: 'center-col' },
+      h('div', { class: 'logo' }, '🔐'), h('h1', null, 'Welcome to CipherPost'),
+      h('p', { class: 'muted c' }, 'End-to-end encrypted messages and files with patients and colleagues. Your keys are created on this device and never leave it.'),
+      h('div', { class: 'card' },
+        h('label', null, 'Your name — patients and colleagues see it'), name,
+        h('label', null, 'Passcode — at least 6 digits. Needed every time CipherPost opens; it cannot be recovered.'), p1, p2,
+        h('details', null, h('summary', null, 'Advanced: relay server'),
+          h('p', { class: 'small muted' }, 'Encrypted messages pass through this relay. Use your organization\'s own ntfy server if it has one.'), relayIn),
+        err, btn),
+      footer()));
+  }
+
+  function screenNoInvite() {
+    show(h('main', { class: 'center-col' },
+      h('div', { class: 'logo' }, '🔐'), h('h1', null, 'Secure messages'),
+      h('p', { class: 'muted c' }, 'To message your care team securely, open the invite link they sent you by text or email. Nothing to install.'),
+      footer()));
+  }
+
+  async function screenJoin(text) {
+    let inv;
+    try { inv = await CP2.parseInviteCode(text); CP2.Engine.checkInviteFor(P.role, inv); }
+    catch (e) { return screenWrongPlace(text, e.message); }
+    const p1 = pinInput('Choose a passcode'), p2 = pinInput('Repeat passcode');
+    const err = h('p', { class: 'err', role: 'alert' });
+    const btn = h('button', { class: 'primary', onclick: async () => {
+      err.textContent = '';
+      const pp = passProblem(p1.value); if (pp) return (err.textContent = pp);
+      if (p1.value !== p2.value) return (err.textContent = "Passcodes don't match");
+      btn.disabled = true; btn.textContent = 'Connecting…';
+      try {
+        await E.create('', p1.value, inv.inviter.relay);
+        const r = await E.acceptInvite(inv);
+        pendingLink = null;
+        await afterUnlock({ name: 'chat', cid: r.contact.id });
+        toast(`Connected with ${inv.inviter.name}`);
+      } catch (e) { err.textContent = e.message; btn.disabled = false; btn.textContent = 'Connect'; }
+    } }, 'Connect');
+    show(h('main', { class: 'center-col' },
+      h('div', { class: 'logo' }, '🔐'), h('h1', null, 'Secure messages'),
+      h('p', { class: 'muted c' }, `${inv.inviter.name} invited you to message them privately. Nothing to install — choose a passcode and you're connected.`),
+      h('div', { class: 'card' },
+        h('label', null, 'Choose a passcode — at least 6 digits. You\'ll enter it to read your messages.'), p1, p2, err, btn),
+      h('p', { class: 'small muted c' }, 'Your messages are encrypted on this phone. Keep using this same browser to read them.'),
+      footer()));
+  }
+
+  /** An invite opened in the wrong place (e.g. a staff invite in a browser, or a patient invite in the app). */
+  function screenWrongPlace(text, why) {
+    const isWeb = P.kind === 'web';
+    const payload = (/(CP2I\.[A-Za-z0-9_-]+)/.exec(text) || [])[1] || '';
+    const android = isWeb && /Android/i.test(G.navigator.userAgent);
+    show(h('main', { class: 'center-col' },
+      h('div', { class: 'logo' }, '📱'), h('h1', null, isWeb ? 'Open this in the CipherPost app' : 'This invite is for a patient'),
+      h('p', { class: 'muted c' }, why),
+      isWeb ? h('div', { class: 'card' },
+        android ? h('a', { class: 'btn primary', href: 'intent://open?p=' + encodeURIComponent(payload) + '#Intent;scheme=cipherpost;package=com.rmsoftware.cipherpost;end' }, 'Open in the CipherPost app') : null,
+        !android ? h('a', { class: 'btn primary', href: 'cipherpost://open?p=' + encodeURIComponent(payload) }, 'Open in CipherPost for Windows') : null,
+        h('button', { onclick: async () => { const r = await P.shareText(P.page + '#' + payload); if (r === 'copied') toast('Copied — paste it into CipherPost'); } }, 'Copy the link')) : null,
+      !isWeb ? h('button', { onclick: () => { pendingLink = null; route(); } }, 'Back') : null,
+      footer()));
+  }
+
+  // ============================================================ lock
+  async function screenLock() {
+    const meta = await store.meta();
+    const pin = pinInput('Passcode');
+    const status = h('p', { class: 'warn c', role: 'status' });
+    const btn = h('button', { class: 'primary' }, 'Unlock');
+    const invNote = pendingLink && !STAFF ? h('p', { class: 'muted c' }, 'You have a new invite. Enter your passcode to add it to your secure messages.') : null;
+    const refresh = async () => {
+      const m = await store.meta(); if (!m) return route();
+      const wait = (m.lockoutUntil || 0) - Date.now();
+      if (wait > 0) { btn.disabled = true; status.textContent = `Too many wrong attempts. Try again in ${Math.ceil(wait / 1000)} s.`; setTimeout(refresh, 1000); }
+      else { btn.disabled = false; status.textContent = m.fails ? `${m.fails} wrong attempt(s).${m.wipe ? ` Everything is erased after ${CP2.MAX_FAILS}.` : ''}` : ''; }
+    };
+    const attempt = async () => {
+      if (!pin.value || btn.disabled) return;
+      btn.disabled = true; btn.textContent = 'Unlocking…';
+      try { await E.unlock(pin.value); await afterUnlock(); }
+      catch (e) {
+        btn.textContent = 'Unlock'; pin.value = '';
+        if (e.erased) { await alertBox('Data erased', 'Too many wrong passcodes. All CipherPost data on this device has been erased.'); return route(); }
+        if (!e.wrongPasscode && !e.lockedOut) status.textContent = e.message;
+        await refresh();
+        if (e.wrongPasscode) toast('Wrong passcode');
+      }
+    };
+    btn.onclick = attempt;
+    pin.addEventListener('keydown', e => { if (e.key === 'Enter') attempt(); });
+    let bioBtn = null;
+    if (P.bio && await P.bio.enabled().catch(() => false)) {
+      const tryBio = async () => {
+        try { const dek = await P.bio.unlock(); if (!dek) return; await E.unlockWithDek(dek); await afterUnlock(); }
+        catch (e) { status.textContent = e.message; }
+      };
+      bioBtn = h('button', { onclick: tryBio }, 'Use fingerprint or face');
+      if (!bioTried) { bioTried = true; setTimeout(tryBio, 200); }
+    }
+    const forgot = h('button', { class: 'link', onclick: async () => {
+      if (await confirmBox(STAFF ? 'Forgot your passcode?' : 'Start over?',
+        STAFF ? 'The only way back in is to erase CipherPost on this device and set it up again. Your contacts will need to invite you again or be re-invited.'
+              : 'This erases the secure messages in this browser. Your care team can simply invite you again.', 'Erase', true)) {
+        await E.erase(); route();
+      }
+    } }, pendingLink && !STAFF ? 'Not my inbox, or forgot passcode — start fresh' : 'Forgot passcode?');
+    show(h('main', { class: 'center-col' },
+      h('div', { class: 'logo' }, '🔒'), h('h1', null, 'CipherPost is locked'), invNote,
+      h('div', { class: 'card' }, pin, status, btn, bioBtn, forgot),
+      footer()));
+    if (meta) refresh();
+    setTimeout(() => pin.focus(), 50);
+  }
+
+  async function afterUnlock(startView) {
+    lastActive = Date.now();
+    bioTried = true;
+    view = startView || { name: 'home' };
+    startTimers();
+    P.setInbox(E.me.relay, E.me.inbox).catch(() => {});
+    unsubscribe();
+    unsubscribe = relay.subscribe(E.me.relay, E.me.inbox, ev => E.live(ev).then(() => notifyIfHidden()));
+    if (pendingLink) { const l = pendingLink; pendingLink = null; await handleInviteWhileUnlocked(l); }
+    else render();
+    syncNow();
+  }
+  async function syncNow() {
+    try { const r = await E.sync(); if (r.received) notifyIfHidden(); setOffline(false); }
+    catch (e) { setOffline(true); }
+  }
+  let offline = false;
+  function setOffline(v) { if (offline !== v) { offline = v; scheduleRender(); } }
+  function notifyIfHidden() { if (D.hidden && P.notify) P.notify('CipherPost', 'You have a new secure message'); }
+
+  function startTimers() {
+    timers.forEach(clearInterval);
+    timers = [
+      setInterval(() => { if (E.isUnlocked()) syncNow(); }, 60000),
+      setInterval(() => {
+        if (!E.isUnlocked()) return;
+        const mins = STAFF ? (E.settings().autoLockMin || 5) : 5;
+        if (Date.now() - lastActive > mins * 60000) lockNow(`Automatic logoff after ${mins} min of inactivity`);
+      }, 5000),
+    ];
+  }
+  async function lockNow(reason) {
+    timers.forEach(clearInterval); timers = [];
+    unsubscribe(); unsubscribe = () => {};
+    bioTried = false;
+    freeBlobs();
+    D.querySelectorAll('.scrim').forEach(s => s.remove());
+    await E.lock(reason);
+    route();
+  }
+  ['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(ev => G.addEventListener(ev, () => { lastActive = Date.now(); }, { passive: true }));
+  D.addEventListener('visibilitychange', () => {
+    if (D.hidden) { hiddenAt = Date.now(); return; }
+    if (E.isUnlocked() && hiddenAt && Date.now() - hiddenAt > 60000 && P.kind !== 'desktop') lockNow('Automatic logoff: app was in the background');
+    else if (E.isUnlocked()) syncNow();
+  });
+
+  // ============================================================ texting from your own phone (desktop)
+  /** Shows a QR code that opens the phone's texting app with the number and text filled in. */
+  function qrSvg(data) {
+    const q = G.qrcode(0, 'L');
+    G.qrcode.stringToBytes = G.qrcode.stringToBytesFuncs['UTF-8'];
+    q.addData(data); q.make();
+    const n = q.getModuleCount(), NS = 'http://www.w3.org/2000/svg';
+    const svg = D.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', `-4 -4 ${n + 8} ${n + 8}`); svg.setAttribute('class', 'qr'); svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', 'QR code to text from your phone');
+    const bg = D.createElementNS(NS, 'rect');
+    bg.setAttribute('x', -4); bg.setAttribute('y', -4); bg.setAttribute('width', n + 8); bg.setAttribute('height', n + 8); bg.setAttribute('fill', '#fff');
+    svg.append(bg);
+    let d = '';
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c} ${r}h1v1h-1z`;
+    const path = D.createElementNS(NS, 'path'); path.setAttribute('d', d); path.setAttribute('fill', '#000');
+    svg.append(path);
+    return svg;
+  }
+  async function textFromPhone(name, phone, text) {
+    const number = String(phone).replace(/[^\d+]/g, '');
+    await modal(`Text ${name} from your phone`, h('div', { class: 'c' },
+      h('p', null, 'Point your phone\'s camera at this code. Your texting app opens with the number and message filled in — just press Send.'),
+      qrSvg(`SMSTO:${number}:${text}`),
+      h('p', { class: 'small muted' }, `To: ${phone}`)),
+      [{ label: 'Copy text instead', value: 'copy' }, { label: 'Done', value: null, primary: true }])
+      .then(async v => { if (v === 'copy') { await P.shareText(text); toast('Copied'); } });
+  }
+  const canQr = () => P.kind === 'desktop' && typeof G.qrcode === 'function';
+
+  // ============================================================ invites
+  async function handleInviteWhileUnlocked(text) {
+    let inv;
+    try { inv = await CP2.parseInviteCode(text); CP2.Engine.checkInviteFor(P.role, inv); }
+    catch (e) { return screenWrongPlace(text, e.message); }
+    if (inv.inviter.id === E.myId) { await alertBox('That\'s your own invite', 'Send it to the person you want to connect with.'); return render(); }
+    if (E.contact(inv.inviter.id)) return go({ name: 'chat', cid: inv.inviter.id });
+    if (!(await confirmBox(`Connect with ${inv.inviter.name}?`, `${inv.inviter.name} invited you to message securely. You'll both be verified automatically.`, 'Connect'))) return render();
+    try { const r = await E.acceptInvite(inv); toast(`Connected with ${inv.inviter.name}`); go({ name: 'chat', cid: r.contact.id }); }
+    catch (e) { await alertBox('Couldn\'t connect', e.message); render(); }
+  }
+
+  async function inviteDialog(type) {
+    const patient = type === 'patient';
+    const s = E.settings();
+    const name = h('input', { placeholder: patient ? 'Patient\'s name' : 'Colleague\'s name', 'aria-label': 'Name' });
+    const phone = h('input', { type: 'tel', placeholder: 'Mobile number', 'aria-label': 'Mobile number' });
+    const email = h('input', { type: 'email', placeholder: 'Email (optional)', 'aria-label': 'Email' });
+    const err = h('p', { class: 'err', role: 'alert' });
+    const how = P.kind === 'android' ? 'The invite is texted to them automatically if you enter a mobile number.'
+      : 'Your email app opens with the invite ready, or you can copy the link and text it.';
+    const ok = await modal(patient ? 'Invite a patient' : 'Invite a colleague',
+      h('div', null, name, phone, email,
+        h('p', { class: 'small muted' }, patient ? `They tap the link, choose a passcode and they're connected — nothing to install. ${how}`
+                                                 : `They open the link on a phone or PC with CipherPost. ${how}`), err),
+      [{ label: 'Cancel', value: false }, { label: 'Send invite', value: true, primary: true, check: () => {
+        if (!name.value.trim()) { err.textContent = 'Enter a name'; return false; }
+        if (email.value.trim() && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value.trim())) { err.textContent = 'Check the email address'; return false; }
+        return true;
+      } }]);
+    if (!ok) return;
+    void s;
+    const r = E.createInvite(type, name.value, phone.value, email.value);
+    await deliverInvite(E.pendingInvites().find(i => i.id === r.id));
+    render();
+  }
+
+  async function deliverInvite(inv) {
+    const link = E.inviteLink(inv.id);
+    const text = inv.type === 'patient'
+      ? `${E.me.name} invited you to secure messaging (nothing to install): ${link}`
+      : `${E.me.name} invited you to CipherPost. Open on a device with CipherPost: ${link}`;
+    if (inv.phone && P.kind === 'android') {
+      const r = await P.sendSms(inv.phone, text).catch(() => 'error');
+      if (r === 'sent') return toast(`Invite texted to ${inv.name}`);
+    }
+    if (inv.phone && canQr()) {
+      const v = await modal(`Send the invite to ${inv.name}`, h('p', null, 'How would you like to send it?'),
+        [inv.email ? { label: 'Email', value: 'email' } : null, { label: 'Copy', value: 'copy' }, { label: 'Text from my phone', value: 'qr', primary: true }].filter(Boolean));
+      if (v === 'qr') return textFromPhone(inv.name, inv.phone, text);
+      if (v === 'email') return P.sendEmail(inv.email, 'Secure messaging invitation', text);
+      if (v === 'copy') { await P.shareText(text); return toast('Invite copied'); }
+      return;
+    }
+    if (inv.email) { await P.sendEmail(inv.email, 'Secure messaging invitation', text); return; }
+    const r = await P.shareText(text, 'Secure messaging invitation');
+    if (r === 'copied') toast('Invite copied — paste it into a text or email');
+  }
+
+  // ============================================================ home
+  function screenHome() {
+    const lockBtn = iconBtn('Lock', () => lockNow('Locked by user'), '🔒');
+    const menuBtn = iconBtn('Settings and help', () => go({ name: 'settings' }), '⚙️');
+    const parts = [];
+    if (STAFF) parts.push(h('div', { class: 'row' },
+      h('button', { class: 'primary', onclick: () => inviteDialog('patient') }, 'Invite patient'),
+      h('button', { onclick: () => inviteDialog('staff') }, 'Invite colleague')));
+    if (offline) parts.push(h('p', { class: 'banner' }, 'Can\'t reach the relay — messages will be sent when the connection is back.'));
+    const waiting = STAFF ? E.pendingInvites() : [];
+    if (waiting.length) {
+      parts.push(h('h3', null, 'Waiting to connect'));
+      for (const i of waiting) parts.push(h('button', { class: 'item', onclick: () => waitingActions(i) },
+        h('div', { class: 'item-top' }, h('span', { class: 'item-name' }, i.name), h('span', { class: 'tag' }, i.type === 'patient' ? 'patient' : 'colleague')),
+        h('div', { class: 'item-sub warn' }, `Invited ${fmtTime(i.created)} · they appear here once they connect`)));
+    }
+    const cs = E.contacts();
+    parts.push(h('h3', null, STAFF ? 'Conversations' : 'Your care team'));
+    if (!cs.length) parts.push(h('div', { class: 'card muted' }, STAFF ? 'No conversations yet. Invite a patient or colleague — they appear here as soon as they connect.' : 'No one yet. Open the invite link your care team sent you.'));
+    for (const c of cs) {
+      const last = c.msgs[c.msgs.length - 1];
+      const prev = last ? (last.out ? 'You: ' : '') + (last.file ? `${fileIcon(last.file.mime)} ${last.file.name}` : last.text.replace(/\s+/g, ' ')) : (c.joined ? 'Connected — say hello' : 'No messages yet');
+      parts.push(h('button', { class: 'item' + (c.unread ? ' unread' : ''), onclick: () => go({ name: 'chat', cid: c.id }) },
+        h('div', { class: 'item-top' }, h('span', { class: 'item-name' }, c.name), STAFF ? h('span', { class: 'tag' }, c.role === 'patient' ? 'patient' : 'colleague') : null,
+          c.unread ? h('span', { class: 'badge' }, String(c.unread)) : null),
+        h('div', { class: 'item-sub' }, h('span', { class: 'ellipsis' }, prev), last ? h('span', { class: 'time' }, fmtTime(last.rx || last.ts)) : null)));
+    }
+    parts.push(h('p', { class: 'small muted c' }, '✓ Everyone here is verified · end-to-end encrypted'));
+    show(header(STAFF ? E.me.name : 'Secure messages', STAFF ? 'CipherPost' : null, null, h('div', { class: 'bar-actions' }, lockBtn, menuBtn)),
+      h('main', null, parts), footer());
+  }
+
+  async function waitingActions(i) {
+    const v = await modal(`Waiting for ${i.name}`,
+      h('p', null, `${i.name} appears in your conversations as soon as they open the invite and connect — nothing else to do. Invites work once and expire after 30 days.`),
+      [{ label: 'Cancel invite', value: 'cancel', danger: true }, { label: 'Send again', value: 'resend' }, { label: 'Close', value: null, primary: true }]);
+    if (v === 'resend') await deliverInvite(i);
+    if (v === 'cancel') { await E.cancelInvite(i.id); render(); }
+  }
+
+  // ============================================================ conversation
+  let threadEl = null, chatCid = null;
+  function screenChat(cid) {
+    const c = E.contact(cid);
+    chatCid = cid;
+    E.markRead(cid);
+    const back = iconBtn('Back', () => go({ name: 'home' }), '‹');
+    const info = iconBtn('Contact details', () => contactInfo(cid), 'ⓘ');
+    threadEl = h('div', { class: 'thread', 'aria-live': 'polite' });
+    const input = h('textarea', { rows: 2, placeholder: `Message ${c.name}`, 'aria-label': 'Message', maxlength: 20000 });
+    input.addEventListener('input', () => { lastActive = Date.now(); });
+    const send = h('button', { class: 'primary send', onclick: async () => {
+      const text = input.value; if (!text.trim()) return;
+      send.disabled = true;
+      try { const r = await E.send(cid, text); input.value = ''; await afterSend(c, r); }
+      catch (e) { toast(e.message); }
+      send.disabled = false; input.focus();
+    } }, 'Send');
+    input.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) send.click(); });
+    const fileIn = h('input', { type: 'file', class: 'hidden', 'aria-hidden': 'true' });
+    fileIn.addEventListener('change', async () => {
+      const f = fileIn.files[0]; fileIn.value = '';
+      if (!f) return;
+      if (f.size > CP2.MAX_FILE) return alertBox('File too large', 'Files can be up to 15 MB.');
+      try {
+        const r = await E.sendFile(cid, { name: f.name, mime: f.type || 'application/octet-stream', bytes: new Uint8Array(await f.arrayBuffer()) }, input.value.trim());
+        input.value = '';
+        await afterSend(c, r);
+      } catch (e) { alertBox('Couldn\'t send file', e.message); }
+    });
+    const attach = iconBtn('Attach a file', () => fileIn.click(), '📎');
+    show(header(c.name, `✓ verified · ${c.role === 'patient' ? 'patient' : STAFF ? 'colleague' : 'care team'}`, back, info),
+      h('main', { class: 'chat' }, threadEl),
+      h('div', { class: 'composer' }, attach, input, send, fileIn));
+    renderThread(true);
+  }
+
+  async function afterSend(c, r) {
+    if (!r) return;
+    if (r.smsNotice && P.kind === 'android') {
+      const s = await P.sendSms(r.smsNotice.phone, r.smsNotice.text).catch(() => 'error');
+      if (s === 'sent') { E.noteSmsSent(c.id); toast(`${firstName(c.name)} was texted a notice (no message content)`); return; }
+    }
+    if (STAFF && c.role === 'patient' && (r.smsNotice || (!c.phone && c.email)) && (c.email || P.kind !== 'android')) {
+      // desktop (or a phone without SMS permission): offer to text from your own phone, email, or copy the notice
+      const now = Date.now();
+      if (c.lastEmailPrompt && now - c.lastEmailPrompt < CP2.SMS_GAP && !c.repliedSinceSms) return;
+      c.lastEmailPrompt = now;
+      const text = `You have a new secure message from ${E.me.name}. Open: ${P.page}`;
+      const bar = h('div', { class: 'notice-bar' }, `Let ${firstName(c.name)} know there's a message?`,
+        c.phone && canQr() ? h('button', { onclick: async () => { bar.remove(); await textFromPhone(c.name, c.phone, text); E.noteSmsSent(c.id); } }, 'Text from my phone') : null,
+        c.email ? h('button', { onclick: async () => { await P.sendEmail(c.email, 'New secure message', text); E.noteSmsSent(c.id); bar.remove(); } }, 'Email notice') : null,
+        h('button', { onclick: async () => { const s = await P.shareText(text); if (s === 'copied') toast('Notice copied'); E.noteSmsSent(c.id); bar.remove(); } }, 'Copy notice'),
+        h('button', { class: 'link', onclick: () => bar.remove() }, 'No'));
+      const comp = D.querySelector('.composer'); if (comp) comp.before(bar);
+    }
+  }
+
+  function renderThread(initial) {
+    const c = E.contact(chatCid);
+    if (!threadEl || !c || view.name !== 'chat') return;
+    const nearBottom = initial || threadEl.scrollHeight - threadEl.scrollTop - threadEl.clientHeight < 80;
+    const nodes = [];
+    if (!c.msgs.length) nodes.push(h('p', { class: 'muted c' }, c.joined || !STAFF ? `You're connected with ${c.name}. Messages are end-to-end encrypted.` : 'No messages yet.'));
+    for (const m of c.msgs) nodes.push(bubble(c, m));
+    threadEl.replaceChildren(...nodes);
+    E.markRead(chatCid);
+    if (nearBottom) requestAnimationFrame(() => { threadEl.scrollTop = threadEl.scrollHeight; });
+  }
+
+  const STATUS = { sending: 'Sending…', sent: 'Sent ✓', delivered: 'Delivered ✓✓', failed: 'Not delivered ⚠' };
+  function bubble(c, m) {
+    const kids = [];
+    if (m.file) {
+      const st = m.file.state;
+      const thumb = h('div', { class: 'thumb' });
+      if (st === 'ready' && m.file.mime.startsWith('image/') && m.file.size < 8 * 1048576) {
+        E.fileBytes(c.id, m.id).then(b => { thumb.append(h('img', { src: blobUrl(b, m.file.mime), alt: m.file.name })); }).catch(() => {});
+      }
+      kids.push(thumb, h('div', { class: 'fname' }, `${fileIcon(m.file.mime)} ${m.file.name}`),
+        h('div', { class: 'small' }, fmtSize(m.file.size), ' · ',
+          st === 'ready' ? 'tap to open' : st === 'requested' ? 'link expired — asking for it again…' : st === 'failed' ? 'download failed — tap to retry' : 'downloading…'));
+      if (m.text) kids.push(h('div', { class: 'text' }, m.text));
+    } else kids.push(h('div', { class: 'text' }, m.text));
+    kids.push(h('div', { class: 'meta' }, '🔒 ', fmtTime(m.out ? m.ts : (m.rx || m.ts)), m.out ? ' · ' + (STATUS[m.status] || '') : ''));
+    const b = h('div', { class: 'bubble ' + (m.out ? 'out' : 'in') + (m.status === 'failed' ? ' failed' : ''), tabindex: '0',
+                          onclick: () => m.file ? openFile(c, m) : null,
+                          oncontextmenu: e => { e.preventDefault(); messageActions(c, m); } }, kids);
+    let t; b.addEventListener('touchstart', () => { t = setTimeout(() => messageActions(c, m), 600); }, { passive: true });
+    b.addEventListener('touchend', () => clearTimeout(t));
+    return b;
+  }
+
+  async function messageActions(c, m) {
+    const v = await modal('Message', h('p', { class: 'muted' }, 'Delete removes it from this device only.'),
+      [{ label: 'Cancel', value: null }, { label: 'Delete from this device', value: 'del', danger: true }]);
+    if (v === 'del') await E.deleteMessage(c.id, m.id);
+  }
+
+  async function contactInfo(cid) {
+    const c = E.contact(cid);
+    const code = await E.safetyCodeOf(cid);
+    const v = await modal(c.name, h('div', null,
+      h('p', null, `${c.role === 'patient' ? 'Patient' : 'Staff'} · verified automatically when they connected.`),
+      c.phone || c.email ? h('p', { class: 'muted' }, [c.phone, c.email].filter(Boolean).join(' · ')) : null,
+      h('p', { class: 'small muted' }, 'Safety code (optional extra check — matches the code on their device):'),
+      h('p', { class: 'mono' }, code)),
+      [{ label: 'Delete contact', value: 'del', danger: true }, { label: 'Close', value: null, primary: true }]);
+    if (v === 'del' && await confirmBox(`Delete ${c.name}?`, 'Removes them and your conversation from this device. You would need to invite them again.', 'Delete', true)) {
+      await E.deleteContact(cid); go({ name: 'home' });
+    }
+  }
+
+  // ============================================================ files
+  async function openFile(c, m) {
+    if (m.file.state !== 'ready') {
+      if (m.file.state === 'failed' || m.file.state === 'requested') { toast('Trying again…'); await E.retryFile(c.id, m.id); }
+      return;
+    }
+    let bytes;
+    try { bytes = await E.fileBytes(c.id, m.id, 'view'); } catch (e) { return alertBox('Couldn\'t open file', e.message); }
+    const mime = m.file.mime;
+    if (await P.viewFile(m.file.name, mime, bytes)) return;
+    const back = iconBtn('Back', () => go({ name: 'chat', cid: c.id }), '‹');
+    let body;
+    if (mime.startsWith('image/')) body = h('img', { class: 'viewer-img', src: blobUrl(bytes, mime), alt: m.file.name });
+    else if (mime.startsWith('text/') || mime === 'application/json') body = h('pre', { class: 'viewer-text' }, CP2.str(bytes.slice(0, 512 * 1024)));
+    else body = h('div', { class: 'card c' }, h('div', { class: 'logo' }, fileIcon(mime)), h('p', null, 'CipherPost can\'t preview this type of file. You can save a copy to open it in another program.'));
+    view = { name: 'file' };
+    show(header(m.file.name, `${fmtSize(m.file.size)} · ${m.out ? 'sent to' : 'from'} ${c.name}`, back),
+      h('main', null, m.text ? h('p', null, m.text) : null, body,
+        h('button', { onclick: () => saveCopy(c, m) }, 'Save a copy…')));
+  }
+  async function saveCopy(c, m) {
+    if (!(await confirmBox('Save an unencrypted copy?', 'The saved copy is not protected by CipherPost — other apps and anyone with access to this device may be able to read it. Only save it if your organization\'s policy allows it.' + (STAFF ? ' The save is recorded in the audit log.' : ''), 'Save'))) return;
+    try { const b = await E.fileBytes(c.id, m.id, 'save'); await P.saveFile(m.file.name, m.file.mime, b); }
+    catch (e) { alertBox('Couldn\'t save', e.message); }
+  }
+
+  // ============================================================ settings, audit, help, about
+  async function screenSettings() {
+    const back = iconBtn('Back', () => go({ name: 'home' }), '‹');
+    const s = E.settings();
+    const rows = [];
+    const row = (label, value, onclick) => h('button', { class: 'item', onclick }, h('div', { class: 'item-top' }, h('span', { class: 'item-name' }, label)), value ? h('div', { class: 'item-sub' }, value) : null);
+    if (STAFF) {
+      const meta = await store.meta();
+      rows.push(h('h3', null, 'Security'));
+      rows.push(row('Automatic logoff', `After ${s.autoLockMin} minutes without use`, async () => {
+        const sel = h('select', { 'aria-label': 'Minutes' }, [1, 2, 5, 10, 15].map(n => h('option', { value: n, selected: n === s.autoLockMin ? 'selected' : null }, `${n} minute${n > 1 ? 's' : ''}`)));
+        if (await modal('Log off automatically after', sel, [{ label: 'Cancel', value: false }, { label: 'Save', value: true, primary: true }])) { await E.setSetting('autoLockMin', +sel.value, 'Automatic logoff (min)'); render(); }
+      }));
+      rows.push(row('Delete old messages', s.retentionDays ? `After ${s.retentionDays} days` : 'Keep until deleted', async () => {
+        const sel = h('select', { 'aria-label': 'Days' }, [0, 7, 30, 90, 365].map(n => h('option', { value: n, selected: n === s.retentionDays ? 'selected' : null }, n ? `After ${n} days` : 'Keep until deleted')));
+        if (await modal('Delete messages older than', sel, [{ label: 'Cancel', value: false }, { label: 'Save', value: true, primary: true }])) {
+          await E.setSetting('retentionDays', +sel.value, 'Message retention (days)'); await E.applyRetention(); await E.save(); render();
+        }
+      }));
+      if (P.bio && await P.bio.available().catch(() => false)) {
+        const on = await P.bio.enabled().catch(() => false);
+        rows.push(row('Unlock with fingerprint or face', on ? 'On' : 'Off', async () => {
+          if (on) { await P.bio.disable(); E.audit('setting_changed', 'Fingerprint/face unlock: off'); await E.save(); return render(); }
+          if (!(await confirmBox('Unlock with fingerprint or face?', 'CipherPost will also open with your phone\'s own lock — so anyone who knows the phone\'s PIN can open it. Your passcode keeps working. Check that your organization\'s policy allows this.', 'Turn on'))) return;
+          try { if (await P.bio.enable(store.exportDek())) { E.audit('setting_changed', 'Fingerprint/face unlock: on'); await E.save(); toast('Fingerprint/face unlock is on'); } }
+          catch (e) { alertBox('Couldn\'t turn it on', e.message); }
+          render();
+        }));
+      }
+      rows.push(row('Erase after 10 wrong passcodes', meta.wipe ? 'On' : 'Off', async () => {
+        await store.setWipe(!meta.wipe); E.audit('setting_changed', `Erase after 10 wrong passcodes: ${!meta.wipe ? 'on' : 'off'}`); await E.save(); render();
+      }));
+      if (P.kind === 'android') rows.push(row('Text patients a notice when you message them', s.smsNotices ? 'On — no message content is included' : 'Off', async () => { await E.setSetting('smsNotices', !s.smsNotices, 'SMS notices'); render(); }));
+      rows.push(row('Audit log', 'Every access, message and change, tamper-evident', () => go({ name: 'audit' })));
+    }
+    rows.push(h('h3', null, 'Account'));
+    rows.push(row('Change passcode', null, changePasscode));
+    rows.push(row('Lock now', null, () => lockNow('Locked by user')));
+    if (STAFF) rows.push(row('Relay server', E.me.relay, () => alertBox('Relay server', `Encrypted messages pass through ${E.me.relay}. It only ever sees scrambled data. To use a different relay, set it when creating your account.`)));
+    rows.push(h('h3', null, 'Help'));
+    rows.push(row('How CipherPost works', null, () => go({ name: 'help' })));
+    rows.push(row('About', null, about));
+    rows.push(h('h3', null, 'Danger zone'));
+    rows.push(h('button', { class: 'danger', onclick: async () => {
+      if (await confirmBox('Erase everything?', 'Permanently deletes your keys, contacts and messages on this device. This cannot be undone.', 'Erase', true)) { await lockNow(null); await E.erase(); route(); }
+    } }, 'Erase all CipherPost data on this device'));
+    show(header('Settings', null, back), h('main', null, rows), footer());
+  }
+
+  async function changePasscode() {
+    const cur = pinInput('Current passcode'), n1 = pinInput('New passcode'), n2 = pinInput('Repeat new passcode');
+    const err = h('p', { class: 'err' });
+    const ok = await modal('Change passcode', h('div', null, cur, n1, n2, err), [{ label: 'Cancel', value: false }, { label: 'Change', value: true, primary: true, check: async () => {
+      const pp = passProblem(n1.value); if (pp) { err.textContent = pp; return false; }
+      if (n1.value !== n2.value) { err.textContent = "Passcodes don't match"; return false; }
+      try { await E.changePasscode(cur.value, n1.value); return true; } catch (e) { err.textContent = e.wrongPasscode ? 'Current passcode is wrong' : e.message; return false; }
+    } }]);
+    if (ok) toast('Passcode changed');
+  }
+
+  async function screenAudit() {
+    const back = iconBtn('Back', () => go({ name: 'settings' }), '‹');
+    const bad = await E.verifyAudit();
+    const a = E.s.audit;
+    const exp = h('button', { onclick: async () => {
+      if (!(await confirmBox('Export audit log?', 'The file lists names and activity times, which may be protected health information. Store it as your organization\'s policy requires.', 'Export'))) return;
+      const csv = await E.auditCsv();
+      await P.saveFile(`cipherpost-audit-${new Date().toISOString().slice(0, 10)}.csv`, 'text/csv', CP2.utf8(csv));
+    } }, 'Export CSV…');
+    const list = a.slice(-500).reverse().map(e => h('div', { class: 'audit-row' },
+      h('div', { class: 'mono' + (/fail|reject|saved|erase/.test(e.e) ? ' warn' : '') }, `${new Date(e.t).toLocaleString()}  ${e.e}`),
+      e.d ? h('div', { class: 'small muted' }, e.d) : null));
+    show(header('Audit log', `${a.length} entries`, back, exp),
+      h('main', null, h('div', { class: 'card ' + (bad < 0 ? 'ok' : 'danger-text') }, bad < 0 ? '✓ Integrity verified — every entry is linked to the one before it, so nothing has been altered or removed.' : `⚠ Integrity check failed at entry ${bad + 1}.`),
+        h('p', { class: 'small muted' }, `User: ${E.me.name} (${E.myId.slice(0, 8)}). Message contents are never written to the log.`), list));
+  }
+
+  function screenHelp() {
+    const back = iconBtn('Back', () => go({ name: 'settings' }), '‹');
+    const sec = (t, ...p) => h('section', { class: 'card' }, h('h3', null, t), p.map(x => h('p', null, x)));
+    const staff = [
+      sec('Inviting a patient', 'Tap Invite patient, enter their name and mobile number or email, and send. They tap the link, choose a passcode, and appear in your conversations by themselves — already verified. Patients install nothing.'),
+      sec('Inviting a colleague', 'Tap Invite colleague. They open the link on a phone or PC with CipherPost and tap Connect. Each invite works once and expires after 30 days; until then it shows under Waiting to connect.'),
+      sec('Messages', 'Type and tap Send (Ctrl+Enter on a PC). Messages arrive by themselves. Sending… → Sent ✓ → Delivered ✓✓ once it has reached their device. If someone is offline, CipherPost keeps re-sending for up to 14 days.'),
+      sec('Patients are notified', P.kind === 'android' ? 'When you message a patient who has a mobile number, the app texts them a short notice (no message content). Turn this off in Settings.' : 'After messaging a patient, CipherPost offers to let them know: "Text from my phone" shows a QR code — point your phone\'s camera at it and your texting app opens with the notice ready to send. Email and Copy work too. The notice never contains the message.'),
+      sec('Files', 'Tap 📎 to send a photo, PDF or other file up to 15 MB; anything in the message box goes as its caption. Received files are kept encrypted on this device. Saving a copy outside CipherPost is recorded in the audit log.'),
+      P.kind === 'desktop' ? sec('Staying in the tray', 'Closing the window keeps CipherPost running in the tray so it can tell you about new messages. To quit, right-click the tray icon and choose Quit CipherPost.') : null,
+      sec('Security', 'CipherPost locks after a few minutes without use. After 5 wrong passcodes you must wait; after 10 everything is erased (can be turned off). Settings has the audit log, retention, and fingerprint/face unlock on phones.'),
+    ];
+    const patient = [
+      sec('Reading messages', 'When your care team writes, you get a text or email saying so. Open this page in the same browser, enter your passcode, and the message appears.'),
+      sec('Replying', 'Type and tap Send. Tap 📎 to send a photo or file. Delivered ✓✓ means it has reached your care team.'),
+      sec('Keep it private', 'Use this same browser each time. If you clear your browser data or forget your passcode, ask your care team to invite you again.'),
+    ];
+    show(header('Help', null, back), h('main', null, STAFF ? staff.filter(Boolean) : patient), footer());
+  }
+
+  async function about() {
+    const v = await P.version().catch(() => '2.0');
+    await modal('About CipherPost', h('div', null,
+      h('p', null, `CipherPost ${v}${P.kind === 'desktop' ? ' for Windows' : P.kind === 'android' ? ' for Android' : ' — secure messages'}`),
+      h('p', null, 'End-to-end encrypted messages and files between care teams and patients. Messages are encrypted on the sender\'s device (AES-256-GCM, P-256 keys, signed) and can only be read on the recipient\'s. The relay that carries them only ever sees scrambled data.'),
+      h('p', null, '© 2026 RM Software. All rights reserved.')));
+  }
+
+  // ============================================================ start
+  G.addEventListener('error', e => console.error(e.error || e.message));
+  if (!G.isSecureContext || !G.crypto || !G.crypto.subtle) {
+    show(h('main', { class: 'center-col' }, h('h1', null, 'Secure connection required'), h('p', null, 'Open this page over https:// in an up-to-date browser.')));
+  } else route();
+})(window);
+</script>
+</body>
+</html>
