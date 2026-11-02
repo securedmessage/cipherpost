@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-o3Y8pMbE3Qa2lS10WsZbQW87CDeoHUg/FofEslnSS+I='; style-src 'unsafe-inline'; img-src 'self' blob: data:; manifest-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-nFSqn/4ltcGc9j45ur0+lBSP9DXbobn5aMQWusLlcv0='; style-src 'unsafe-inline'; img-src 'self' blob: data:; manifest-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0E1117">
@@ -31,7 +31,8 @@ p{margin:6px 0}
 .row{display:flex;gap:10px;align-items:center}
 .row>*{flex:1}
 button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:12px 16px;min-height:48px;cursor:pointer;background:var(--card2);color:var(--text);width:100%;margin-top:10px}
-button.primary{background:var(--accent);color:#06281B}
+button.primary,a.btn.primary{background:var(--accent);color:#06281B}
+a.btn{display:flex;align-items:center;justify-content:center;font-weight:700;border-radius:12px;padding:12px 16px;min-height:48px;margin-top:10px;background:var(--card2);color:var(--text);text-decoration:none}
 button.link{background:none;color:var(--muted);font-weight:400;min-height:0;padding:8px;text-decoration:underline}
 button:disabled{opacity:.5}
 input,textarea{font:inherit;width:100%;background:var(--card2);color:var(--text);border:1px solid #2c3445;border-radius:12px;padding:12px 14px;margin-top:8px}
@@ -65,7 +66,7 @@ label{display:block;font-size:13px;color:var(--muted);margin-top:12px}
 <noscript><p class="center">CipherPost needs JavaScript to decrypt messages on your device.</p></noscript>
 <script>
 /* CipherPost web crypto — byte-for-byte compatible with the Android app (CryptoCore.java).
-   Uses only the browser's built-in Web Crypto API. © 2026 Roches Motel Software. */
+   Uses only the browser's built-in Web Crypto API. © 2026 RM Software. */
 const CP = (() => {
   const S = crypto.subtle;
   const te = new TextEncoder(), td = new TextDecoder();
@@ -205,7 +206,9 @@ const CP = (() => {
   async function parseContactCode(text) {
     const m = /CIPHERPOST-KEY:([A-Za-z0-9_\-]+)/.exec(text || '');
     if (!m) return null;
-    const b = b64d(m[1]);
+    return parseContactBytes(b64d(m[1]));
+  }
+  async function parseContactBytes(b) {
     if (b.length < 10 || b[0] !== 75) throw new Error('Not a CipherPost contact code');
     if (b[1] !== 1) throw new Error('Contact code is from a newer version of CipherPost');
     const sigLen = b[b.length - 1], bodyLen = b.length - 1 - sigLen;
@@ -218,6 +221,29 @@ const CP = (() => {
     await S.importKey('spki', agreePub, EC, false, []);
     if (!(await verify(signPub, body, sig))) throw new Error('Contact code signature is invalid');
     return { name, agreePub, signPub, web };
+  }
+
+  // ---------- one-time invites (see CryptoCore.java): invite = inviter's code + id + secret + reply number;
+  // join = invitee's code + HMAC-SHA256(secret, "CipherPost join" || id || code), which the inviter's app checks.
+  const INVITE_PREFIX = 'CIPHERPOST-INVITE:', JOIN_PREFIX = 'CIPHERPOST-JOIN:';
+  async function parseInvite(text) {
+    const m = /CIPHERPOST-INVITE:([A-Za-z0-9_\-]+)/.exec(text || '');
+    if (!m) return null;
+    const b = b64d(m[1]);
+    if (b.length < 30 || b[0] !== 73) throw new Error('Not a CipherPost invite');
+    if (b[1] !== 1) throw new Error('Invite is from a newer version of CipherPost');
+    const type = String.fromCharCode(b[2]), id = b.slice(3, 11), secret = b.slice(11, 27);
+    const rl = b[27], replyTo = td.decode(b.slice(28, 28 + rl));
+    const pos = { p: 28 + rl };
+    const inviter = await parseContactBytes(readBlock(b, pos));
+    return { type, id, secret, replyTo, inviter };
+  }
+  async function makeJoin(inv, me, web = true) {
+    const code = await makeContactCode(me, web);
+    const cb = b64d(code.slice(KEY_PREFIX.length));
+    const k = await S.importKey('raw', inv.secret, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+    const mac = new Uint8Array(await S.sign('HMAC', k, cat(te.encode('CipherPost join'), inv.id, cb)));
+    return JOIN_PREFIX + b64e(cat(new Uint8Array([74, 1]), inv.id, block(cb), mac));
   }
 
   // ---------- messages
@@ -325,7 +351,7 @@ const CP = (() => {
     return { key, obj: JSON.parse(td.decode(pt)) };
   }
 
-  return { MSG_PREFIX, KEY_PREFIX, KIND_TEXT, KIND_FILE, MAX_FILE, b64e, b64d, hex, eq, userId, safetyCode,
+  return { MSG_PREFIX, KEY_PREFIX, INVITE_PREFIX, JOIN_PREFIX, parseInvite, makeJoin, KIND_TEXT, KIND_FILE, MAX_FILE, b64e, b64d, hex, eq, userId, safetyCode,
            newIdentity, makeContactCode, parseContactCode, findMessage, isPacket, peek,
            encryptText, encryptFile, decrypt, sealStore, resealStore, openStore };
 })();
@@ -411,7 +437,7 @@ async function askPersist() { try { if (navigator.storage && navigator.storage.p
 function takeHash() {
   const raw = decodeURIComponent(location.hash.slice(1) || '');
   if (!raw) return;
-  if (raw.includes(CP.KEY_PREFIX) || raw.includes(CP.MSG_PREFIX)) pending = raw;
+  if (raw.includes(CP.KEY_PREFIX) || raw.includes(CP.MSG_PREFIX) || raw.includes(CP.INVITE_PREFIX) || raw.includes(CP.JOIN_PREFIX)) pending = raw;
   history.replaceState(null, '', location.pathname + location.search); // keep codes out of history
 }
 window.addEventListener('hashchange', () => { takeHash(); if (session) processPending(); else route(); });
@@ -433,41 +459,104 @@ function route() {
   return screenHome();
 }
 
+// ---------- links meant for the CipherPost app (a staff member's link opened in a browser)
+const isAndroid = /Android/i.test(navigator.userAgent);
+function appLink(payload) {
+  return 'intent://open?p=' + encodeURIComponent(payload) + '#Intent;scheme=cipherpost;package=com.rochesmotel.cipherpost;end';
+}
+function openInAppButton(payload) {
+  return isAndroid ? h('a', { class: 'btn primary', href: appLink(payload) }, 'Open in the CipherPost app') : null;
+}
+function screenAppOnly(payload, why) {
+  show(
+    h('div', { class: 'logo' }, '📱'),
+    h('h1', null, 'Open this in CipherPost'),
+    h('p', { class: 'center muted' }, why),
+    h('div', { class: 'card' }, openInAppButton(payload) || h('p', null, 'Open this link on the Android phone that has the CipherPost app installed.')),
+    footer());
+}
+
 // ---------- first run
 async function screenSetup() {
-  let staff = null, err = null;
-  if (pending && pending.includes(CP.KEY_PREFIX)) { try { staff = await CP.parseContactCode(pending); } catch (e) { err = e.message; } }
+  let staff = null, invite = null, err = null;
+  try {
+    if (pending && pending.includes(CP.INVITE_PREFIX)) invite = await CP.parseInvite(pending);
+    else if (pending && pending.includes(CP.KEY_PREFIX)) staff = await CP.parseContactCode(pending);
+    else if (pending && (pending.includes(CP.JOIN_PREFIX) || pending.includes(CP.MSG_PREFIX)))
+      return screenAppOnly(pending, 'This link is for someone who uses the CipherPost app. If your care team sent it to you, first open the invite link they sent you.');
+  } catch (e) { err = e.message; }
+  if (invite && invite.type !== 'P') return screenAppOnly(pending, 'This is an invite for staff who use the CipherPost app.');
+
+  const inviter = invite ? invite.inviter : staff;
   const name = h('input', { placeholder: 'Your name', autocomplete: 'name' });
   const p1 = pinInput('Choose a passcode'), p2 = pinInput('Repeat passcode');
   const msg = h('div', { class: 'err' }, err || '');
+  const label = invite ? 'Connect' : 'Create my secure inbox';
   const go = h('button', { class: 'primary', onclick: async () => {
     msg.textContent = '';
-    if (!name.value.trim()) return (msg.textContent = 'Enter your name');
+    if (!invite && !name.value.trim()) return (msg.textContent = 'Enter your name');
     const prob = passProblem(p1.value); if (prob) return (msg.textContent = prob);
     if (p1.value !== p2.value) return (msg.textContent = "Passcodes don't match");
     go.disabled = true; go.textContent = 'Creating your keys…';
     try {
-      const me = await CP.newIdentity(name.value.trim());
+      const me = await CP.newIdentity(invite ? 'Patient' : name.value.trim());
       const data = { me, contacts: [], created: Date.now() };
       const sealed = await CP.sealStore(p1.value, data);
       const { key, ...rec } = sealed;
       localStorage.setItem(STORE, JSON.stringify(rec));
       session = { key, rec, data };
+      lastActive = Date.now();
       askPersist();
-      if (staff) { await addContact(staff); pending = null; await screenWelcome(findContact(await idOf(staff))); }
+      pending = null;
+      if (invite) await acceptInvite(invite);
+      else if (staff) { await addContact(staff); await screenWelcome(findContact(await idOf(staff))); }
       else screenHome();
-    } catch (e) { msg.textContent = e.message; go.disabled = false; go.textContent = 'Create my secure inbox'; }
-  } }, 'Create my secure inbox');
+    } catch (e) { msg.textContent = e.message; go.disabled = false; go.textContent = label; }
+  } }, label);
   const restore = h('button', { class: 'link', onclick: () => pickFile(restoreBackup) }, 'Restore from a backup file');
   show(
     h('div', { class: 'logo' }, '🔐'),
     h('h1', null, 'Secure messages'),
-    h('p', { class: 'center muted' }, staff ? `${staff.name} invited you to message them privately. Nothing to install — everything is encrypted on this device.`
+    h('p', { class: 'center muted' }, inviter ? `${inviter.name} invited you to message them privately. Nothing to install — everything is encrypted on this phone.`
       : 'Private, end-to-end encrypted messages with your care team. Nothing to install.'),
     h('div', { class: 'card' },
-      h('label', null, 'Your name (shown to your care team)'), name,
-      h('label', null, 'Passcode — at least 6 digits. It protects your messages on this device and cannot be recovered.'), p1, p2,
-      msg, go, restore),
+      invite ? null : [h('label', null, 'Your name (shown to your care team)'), name],
+      h('label', null, invite ? 'Choose a passcode — at least 6 digits. You\'ll enter it to read your messages.' : 'Passcode — at least 6 digits. It protects your messages on this device and cannot be recovered.'), p1, p2,
+      msg, go, invite ? null : restore),
+    footer());
+}
+
+// ---------- one-tap connect from an invite
+async function acceptInvite(inv) {
+  const card = inv.inviter;
+  const c = await addContact(card);
+  c.verified = true;          // came through the invite link itself
+  await save();
+  const join = await CP.makeJoin(inv, session.data.me, true);
+  const body = `Tap to connect with me on CipherPost: ${location.origin}${location.pathname}#${join}`;
+  screenConnect(c, body, inv.replyTo);
+}
+function smsLink(number, body) {
+  const n = (number || '').replace(/[^\d+]/g, '');
+  return n ? `sms:${n}?&body=${encodeURIComponent(body)}` : null;
+}
+function screenConnect(c, body, replyTo) {
+  const sms = smsLink(replyTo, body);
+  const done = h('div', { class: 'card hidden' },
+    h('h2', null, 'All set'),
+    h('p', { class: 'muted' }, `Once you've pressed Send, ${c.name} can message you. Their messages arrive as links — just tap one and enter your passcode to read it.`),
+    h('button', { class: 'primary', onclick: () => screenChat(c.id) }, 'Go to my messages'));
+  const reveal = () => setTimeout(() => done.classList.remove('hidden'), 600);
+  show(
+    h('div', { class: 'logo' }, '📨'),
+    h('h1', null, 'Last step'),
+    h('p', { class: 'center muted' }, sms ? `Tap Connect. Your messages app opens with a note to ${c.name} already written — just press Send.`
+      : `Tap Connect and send the note to ${c.name} by text or email.`),
+    h('div', { class: 'card' },
+      sms ? h('a', { class: 'btn primary', href: sms, onclick: reveal }, 'Connect')
+          : h('button', { class: 'primary', onclick: async () => { await shareText(body, 'Connect on CipherPost'); reveal(); } }, 'Connect'),
+      sms ? h('button', { class: 'link', onclick: async () => { await shareText(body, 'Connect on CipherPost'); reveal(); } }, 'Send another way') : null),
+    done,
     footer());
 }
 const idOf = async c => CP.hex(await CP.userId(c.agreePub, c.signPub));
@@ -502,7 +591,7 @@ function keepTip() {
     h('p', { class: 'muted' }, 'Your keys live only in this browser. Use the same browser to open your care team\'s links, '
       + 'and save a backup (menu → Save backup) in case browser data is cleared. If the keys are lost, your care team can simply invite you again.'));
 }
-function footer() { return h('p', { class: 'center muted small', style: 'margin-top:28px' }, '© 2026 Roches Motel Software · ', h('button', { class: 'link', style: 'width:auto;display:inline', onclick: about }, 'About')); }
+function footer() { return h('p', { class: 'center muted small', style: 'margin-top:28px' }, '© 2026 RM Software · ', h('button', { class: 'link', style: 'width:auto;display:inline', onclick: about }, 'About')); }
 
 // ---------- lock screen
 function screenLock() {
@@ -564,6 +653,12 @@ async function processPending() {
   const text = pending; pending = null;
   if (!text) return route();
   try {
+    if (text.includes(CP.INVITE_PREFIX)) {
+      const inv = await CP.parseInvite(text);
+      if (inv.type !== 'P') return screenAppOnly(text, 'This is an invite for staff who use the CipherPost app.');
+      return acceptInvite(inv);
+    }
+    if (text.includes(CP.JOIN_PREFIX)) return screenAppOnly(text, 'This link is for someone who uses the CipherPost app.');
     const card = await CP.parseContactCode(text);
     if (card) {
       const me = session.data.me;
@@ -582,7 +677,7 @@ async function openPacket(bytes) {
   const hd = CP.peek(bytes);
   const myId = await CP.userId(CP.b64d(me.agreePub), CP.b64d(me.signPub));
   if (CP.eq(hd.senderId, myId)) return alertBox('You sent this one', 'Only the person you sent it to can open it.');
-  if (!CP.eq(hd.recipientId, myId)) return alertBox('Not for you', 'This was encrypted for someone else, so it can\'t be opened here.');
+  if (!CP.eq(hd.recipientId, myId)) return alertBox('Not for you', 'This was encrypted for someone else, so it can\'t be opened here. If it\'s for you in the CipherPost app, open it there.', openInAppButton(CP.MSG_PREFIX + CP.b64e(bytes)));
   const c = findContact(CP.hex(hd.senderId));
   if (!c) return alertBox('Unknown sender', 'This is from someone you haven\'t connected with yet. Ask them to send you an invite link first.');
   const o = await CP.decrypt(bytes, me, contactKeys(c));
@@ -598,8 +693,8 @@ async function openPacket(bytes) {
   screenChat(c.id);
   viewFile(o, c);
 }
-function alertBox(title, text) {
-  app.prepend(h('div', { class: 'card', style: 'border:1px solid var(--warn)' }, h('h2', { class: 'warn' }, title), h('p', null, text)));
+function alertBox(title, text, extra) {
+  app.prepend(h('div', { class: 'card', style: 'border:1px solid var(--warn)' }, h('h2', { class: 'warn' }, title), h('p', null, text), extra || null));
   window.scrollTo(0, 0);
 }
 function pickFile(cb) {
@@ -707,7 +802,7 @@ function about() {
     + 'Messages are encrypted and decrypted only on your device (AES-256-GCM, P-256 keys, signed). '
     + 'This page never sends anything over the internet — you choose how to send each encrypted message.\n\n'
     + 'Your inbox locks after 5 minutes of inactivity and is erased after 10 wrong passcodes.\n\n'
-    + '© 2026 Roches Motel Software. All rights reserved.');
+    + '© 2026 RM Software. All rights reserved.');
 }
 
 // ---------- conversation
