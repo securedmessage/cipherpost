@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-6X0Qf9ZzkUcwyC1O3E/TbzPjl3HvJwFiPkmmgz/FetQ=' 'sha256-6Mgt4JPsExEeNfs+2L0oTiBp09BiGMlYlEUKjD1l5eM=' 'sha256-FiCJYmqqQ+JGIZqmrqX8gET9oqhjwT5uTe06nI93S1o=' 'sha256-a7rLmXlfZhbVKf21rWYoJ05cEGfuSzP9OG7B+JQrib8=' 'sha256-Xa0vDZ7VlTAo0gvq48yiqNDJnUAAQiiW7mtkrKc0k8M=' 'sha256-X+v2ImWJY82b5aZ1qeA5gL58JemTlQvN6S7nKVQ6TTs='; style-src 'unsafe-inline'; img-src 'self' blob: data:; connect-src https://ntfy.sh; manifest-src 'self'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-6X0Qf9ZzkUcwyC1O3E/TbzPjl3HvJwFiPkmmgz/FetQ=' 'sha256-6Mgt4JPsExEeNfs+2L0oTiBp09BiGMlYlEUKjD1l5eM=' 'sha256-FiCJYmqqQ+JGIZqmrqX8gET9oqhjwT5uTe06nI93S1o=' 'sha256-a7rLmXlfZhbVKf21rWYoJ05cEGfuSzP9OG7B+JQrib8=' 'sha256-Xa0vDZ7VlTAo0gvq48yiqNDJnUAAQiiW7mtkrKc0k8M=' 'sha256-4ZMpF/yT0Xm1VgN/WyoV9g0uJbDNWVahNE5yzkoZMsQ='; style-src 'unsafe-inline'; img-src 'self' blob: data:; connect-src https://ntfy.sh; manifest-src 'self'; form-action 'none'; base-uri 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0E1117">
@@ -1275,8 +1275,6 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
       h('div', { class: 'card' },
         h('label', null, 'Your name — patients and colleagues see it'), name,
         h('label', null, 'Passcode — at least 6 digits. Needed every time CipherPost opens; it cannot be recovered.'), p1, p2,
-        h('details', null, h('summary', null, 'Advanced: relay server'),
-          h('p', { class: 'small muted' }, 'Encrypted messages pass through this relay. Use your organization\'s own ntfy server if it has one.'), relayIn),
         err, btn),
       footer()));
   }
