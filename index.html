@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-rdvAOveTmrNYrAhHJnUlXkK+Rc+AOLMIWrYWT7I5Dzk='; style-src 'unsafe-inline'; img-src 'self' blob: data:; manifest-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-YX4FvlGc13JCtzmMmZ5iqlUKE9WMHh8OvT36fmwo+6k='; style-src 'unsafe-inline'; img-src 'self' blob: data:; manifest-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0E1117">
@@ -609,6 +609,7 @@ function footer() { return h('p', { class: 'center muted small', style: 'margin-
 
 // ---------- lock screen
 function screenLock() {
+  const isInvite = !!(pending && pending.includes(CP.INVITE_PREFIX));
   const pin = pinInput('Passcode');
   const msg = h('div', { class: 'err' });
   const go = h('button', { class: 'primary' }, 'Unlock');
@@ -644,9 +645,11 @@ function screenLock() {
   show(
     h('div', { class: 'logo' }, '🔒'),
     h('h1', null, 'Secure messages are locked'),
-    pending ? h('p', { class: 'center muted' }, 'You have a new secure message. Enter your passcode to read it.') : h('p', { class: 'center muted' }, 'Enter your passcode'),
+    isInvite ? h('p', { class: 'center muted' }, 'You have a new invite. This browser already has a secure inbox — enter its passcode to add the invite to it.')
+      : pending ? h('p', { class: 'center muted' }, 'You have a new secure message. Enter your passcode to read it.') : h('p', { class: 'center muted' }, 'Enter your passcode'),
     h('div', { class: 'card' }, pin, msg, go,
-      h('button', { class: 'link', onclick: () => { if (confirm('Forgot your passcode? The only option is to erase this inbox and ask your care team to invite you again. Erase now?')) { eraseAll(); route(); } } }, 'Forgot passcode?')),
+      isInvite ? h('button', { onclick: () => { if (confirm('Start a new secure inbox for this invite? The inbox already in this browser, and its messages, will be erased.')) { eraseAll(); route(); } } }, 'Not my inbox / forgot passcode — start fresh') : null,
+      isInvite ? null : h('button', { class: 'link', onclick: () => { if (confirm('Forgot your passcode? The only option is to erase this inbox and ask your care team to invite you again. Erase now?')) { eraseAll(); route(); } } }, 'Forgot passcode?')),
     footer());
   refresh();
   pin.focus();
