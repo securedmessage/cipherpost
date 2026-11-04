@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-6X0Qf9ZzkUcwyC1O3E/TbzPjl3HvJwFiPkmmgz/FetQ=' 'sha256-6Mgt4JPsExEeNfs+2L0oTiBp09BiGMlYlEUKjD1l5eM=' 'sha256-8seWm3lVZgoz7iiTVkXlqmYevGI0+RB9npk8ytheNqM=' 'sha256-tsZbsxPovG7GCtbCP0wZptLxatwDx2lUARsW1Qf2VnY=' 'sha256-qtorP4hIhhk4iLN+7ky4Ul21kQs0u6ORu9mpJvR6jCg=' 'sha256-NE5a/Nwvq6zpH2FAYXPl1WkoftmDyOH7pkJ1jv6BlLs='; style-src 'unsafe-inline'; img-src 'self' blob: data:; media-src blob:; connect-src https://u2mnrv3unj.execute-api.us-east-1.amazonaws.com wss://6yx4yplcbl.execute-api.us-east-1.amazonaws.com https://cipherpost-files-677647025792.s3.us-east-1.amazonaws.com; manifest-src 'self'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-+6nUeSUPpaLqshBgLO/1GSd9TKss/hJ1zos6HIUuiu4=' 'sha256-6Mgt4JPsExEeNfs+2L0oTiBp09BiGMlYlEUKjD1l5eM=' 'sha256-8seWm3lVZgoz7iiTVkXlqmYevGI0+RB9npk8ytheNqM=' 'sha256-z+G0FXQGgb8dEvI0a6X9LEGbRY0GWoyy2F7smx+Jy/A=' 'sha256-BQwdTeBGF2mE0Gppm761WqeB+W+9nsZtQvUbVjs/NuE=' 'sha256-JKyq4YBFbprkQtMKDGONJtF8WYhIzMHNKuIBcuIXIAE='; style-src 'unsafe-inline'; img-src 'self' blob: data:; media-src blob:; connect-src https://u2mnrv3unj.execute-api.us-east-1.amazonaws.com wss://6yx4yplcbl.execute-api.us-east-1.amazonaws.com https://cipherpost-files-677647025792.s3.us-east-1.amazonaws.com; manifest-src 'self'; form-action 'none'; base-uri 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0E1117">
@@ -394,6 +394,29 @@ body:has(.tabbar) .toast{bottom:calc(158px + env(safe-area-inset-bottom))}
     return { inviter: await parseCard(o.c), id: o.id, secret, type: o.t };
   }
 
+  // ------------------------------------------------------------ short invite links
+  // The full invite (~800 characters) is too long to text or e-mail reliably. Instead it is encrypted and parked on
+  // the relay under a random address; the short link carries only that address and the key (CP2S.<22><22>).
+  async function shortKey(k) {
+    return S.importKey('raw', await S.digest('SHA-256', cat(utf8('CP2 short invite'), k)), 'AES-GCM', false, ['encrypt', 'decrypt']);
+  }
+  function newShortRef() { return { topic: 'cp2' + b64e(rand(16)), key: b64e(rand(16)) }; }
+  const shortCode = ref => 'CP2S.' + ref.topic.slice(3) + ref.key;
+  function parseShortCode(text) {
+    const m = /CP2S\.([A-Za-z0-9_-]{22})([A-Za-z0-9_-]{22})/.exec(text || '');
+    return m ? { topic: 'cp2' + m[1], key: m[2] } : null;
+  }
+  async function sealShortInvite(ref, inviteText) {
+    const iv = rand(12);
+    const ct = new Uint8Array(await S.encrypt({ name: 'AES-GCM', iv }, await shortKey(b64d(ref.key)), utf8(inviteText)));
+    return 'CP2X.' + b64e(cat(iv, ct));
+  }
+  async function openShortInvite(ref, body) {
+    const b = b64d(String(body).replace(/^CP2X\./, ''));
+    const pt = await S.decrypt({ name: 'AES-GCM', iv: b.slice(0, 12) }, await shortKey(b64d(ref.key)), b.slice(12));
+    return str(new Uint8Array(pt));
+  }
+
   // ------------------------------------------------------------ passcode & storage keys
   const PBKDF2_ROUNDS = 600000;
   async function passKey(pass, salt, rounds) {
@@ -420,7 +443,7 @@ body:has(.tabbar) .toast{bottom:calc(158px + env(safe-area-inset-bottom))}
   Object.assign(CP2, {
     b64e, b64d, cat, eq, hex, unhex, rand, sha256, utf8, str, aesKey, gcmSeal, gcmOpen,
     newIdentity, idOfMe, userId, safetyCode, makeCard, parseCard, seal, open, peek,
-    joinMac, inviteCode, parseInviteCode, passKey, PBKDF2_ROUNDS, encryptBlob, decryptBlob, hmacChain,
+    joinMac, inviteCode, parseInviteCode, newShortRef, shortCode, parseShortCode, sealShortInvite, openShortInvite, passKey, PBKDF2_ROUNDS, encryptBlob, decryptBlob, hmacChain,
   });
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
@@ -707,6 +730,7 @@ body:has(.tabbar) .toast{bottom:calc(158px + env(safe-area-inset-bottom))}
     constructor(opts) {
       this.store = opts.store; this.relay = opts.relay; this.role = opts.role;
       this.page = (opts.page || '').replace(/#.*$/, '');
+      this.shortRelay = opts.shortRelay || CP2.DEFAULT_RELAY || null;   // where short invite links are parked
       this.now = opts.clock || (() => Date.now());
       this.auditOn = opts.audit !== undefined ? !!opts.audit : opts.role === 'staff';
       this.onChange = opts.onChange || (() => {});
@@ -822,6 +846,34 @@ body:has(.tabbar) .toast{bottom:calc(158px + env(safe-area-inset-bottom))}
       const i = this.s.invites.find(x => x.id === id);
       return i ? `${this.page}#${CP2.inviteCode(this.s.card, id, CP2.b64d(i.s), i.type)}` : null;
     }
+    /** The link to send: short (about 100 characters, so it texts and e-mails reliably) when the invite can be
+        parked on the official relay; otherwise the full link. Parking again on every send keeps it from expiring. */
+    async shareLink(id) {
+      const i = this.s.invites.find(x => x.id === id);
+      if (!i) return null;
+      const full = this.inviteLink(id);
+      if (!this.shortRelay || this.s.me.relay !== this.shortRelay) return full;
+      try {
+        if (!i.short) i.short = CP2.newShortRef();
+        const body = await CP2.sealShortInvite(i.short, CP2.inviteCode(this.s.card, id, CP2.b64d(i.s), i.type));
+        await this.relay.publish(this.shortRelay, i.short.topic, body, true);
+        await this.save();
+        return `${this.page}#${CP2.shortCode(i.short)}`;
+      } catch (e) {
+        return full;
+      }
+    }
+    /** Turns a short invite link back into the full invite (fetched from the relay and decrypted). */
+    static async expandShortLink(relay, base, text) {
+      const ref = CP2.parseShortCode(text);
+      if (!ref) return text;
+      const evs = await relay.poll(base, ref.topic, 'all');
+      for (const e of evs.reverse()) {
+        try { const code = await CP2.openShortInvite(ref, e.message); if (/^CP2I\./.test(code)) return code; }
+        catch (x) { /* not ours or damaged; try older */ }
+      }
+      throw Object.assign(new Error('This invite has expired or was replaced. Ask for a new one.'), { expired: true });
+    }
     cancelInvite(id) {
       this.s.invites = this.s.invites.filter(i => i.id !== id);
       this.audit('invite_cancelled', `Invite ${id.slice(0, 8)}`);
@@ -831,7 +883,7 @@ body:has(.tabbar) .toast{bottom:calc(158px + env(safe-area-inset-bottom))}
     /** Checks that an invite may be accepted here (before creating an identity for it). */
     static checkInviteFor(role, inv) {
       if (inv.type === 'patient' && role !== 'patient') throw new Error('This invite is for a patient. Open it on the patient\'s phone, in a web browser.');
-      if (inv.type === 'staff' && role !== 'staff') throw new Error('This invite is for staff. Open it on a phone with the CipherPost app.');
+      if (inv.type === 'staff' && role !== 'staff') throw new Error('This is an invite for a colleague, not a patient. Open it in the CipherPost staff app on your phone or PC.');
     }
 
     /** Accepts an invite: adds the inviter (verified) and sends our join through the relay. */
@@ -1278,7 +1330,7 @@ body:has(.tabbar) .toast{bottom:calc(158px + env(safe-area-inset-bottom))}
         setTimeout(() => URL.revokeObjectURL(url), 120000);
         return true;
       },
-      setInbox: async () => {}, clearInbox: async () => {}, version: async () => '2.1',
+      setInbox: async () => {}, clearInbox: async () => {}, version: async () => '2.2',
       storageName: 'cipherpost2',
     };
   }
@@ -1401,7 +1453,7 @@ body:has(.tabbar) .toast{bottom:calc(158px + env(safe-area-inset-bottom))}
   // ============================================================ links (invites)
   function takeLinkText(text) {
     if (!text) return;
-    if (/CP2I\./.test(text)) pendingLink = text;
+    if (/CP2[IS]\./.test(text)) pendingLink = text;
   }
   G.CPApp = {
     openLink: text => { takeLinkText(text); route(); },
@@ -1425,7 +1477,29 @@ body:has(.tabbar) .toast{bottom:calc(158px + env(safe-area-inset-bottom))}
   }
 
   // ============================================================ routing
+  let shortLink = null;            // the short link the current invite came from (for "Open in the app")
+  /** Short invite links hold only an address and a key: fetch and decrypt the invite before anything else. */
+  async function expandPending() {
+    const text = pendingLink;
+    if (!text || !/CP2S\./.test(text)) return true;
+    app.replaceChildren(h('main', { class: 'center-col' }, h('div', { class: 'logo' }, '✉️'), h('p', { class: 'muted c' }, 'Opening invite…')));
+    try {
+      const full = await CP2.Engine.expandShortLink(relay, P.defaultRelay, text);
+      shortLink = (/(CP2S\.[A-Za-z0-9_-]{44})/.exec(text) || [])[1] || null;
+      if (pendingLink === text) pendingLink = full;
+      return true;
+    } catch (e) {
+      pendingLink = null;
+      const msg = e.expired ? e.message : 'CipherPost couldn\'t reach the internet to open the invite. Check the connection and open the link again.';
+      show(h('main', { class: 'center-col' }, h('div', { class: 'logo' }, '✉️'), h('h1', null, 'Couldn\'t open the invite'),
+        h('p', { class: 'muted c' }, msg),
+        !e.expired ? h('button', { class: 'primary', onclick: () => { pendingLink = text; route(); } }, 'Try again') : null,
+        h('button', { onclick: () => route() }, 'Continue'), footer()));
+      return false;
+    }
+  }
   async function route() {
+    if (!(await expandPending())) return;
     if (!(await store.exists())) {
       if (STAFF) return screenSetupStaff();
       return pendingLink ? screenJoin(pendingLink) : screenNoInvite();
@@ -1546,7 +1620,7 @@ body:has(.tabbar) .toast{bottom:calc(158px + env(safe-area-inset-bottom))}
   /** An invite opened in the wrong place (e.g. a staff invite in a browser, or a patient invite in the app). */
   function screenWrongPlace(text, why) {
     const isWeb = P.kind === 'web';
-    const payload = (/(CP2I\.[A-Za-z0-9_-]+)/.exec(text) || [])[1] || '';
+    const payload = shortLink || (/(CP2[IS]\.[A-Za-z0-9_-]+)/.exec(text) || [])[1] || '';
     const android = isWeb && /Android/i.test(G.navigator.userAgent);
     show(h('main', { class: 'center-col' },
       h('div', { class: 'logo' }, '📱'), h('h1', null, isWeb ? 'Open this in the CipherPost app' : 'This invite is for a patient'),
@@ -1554,7 +1628,8 @@ body:has(.tabbar) .toast{bottom:calc(158px + env(safe-area-inset-bottom))}
       isWeb ? h('div', { class: 'card' },
         android ? h('a', { class: 'btn primary', href: 'intent://open?p=' + encodeURIComponent(payload) + '#Intent;scheme=cipherpost;package=com.rmsoftware.cipherpost;end' }, 'Open in the CipherPost app') : null,
         !android ? h('a', { class: 'btn primary', href: 'cipherpost://open?p=' + encodeURIComponent(payload) }, 'Open in CipherPost for Windows') : null,
-        h('button', { onclick: async () => { const r = await P.shareText(P.page + '#' + payload); if (r === 'copied') toast('Copied — paste it into CipherPost'); } }, 'Copy the link')) : null,
+        h('button', { onclick: async () => { const r = await P.shareText(P.page + '#' + payload); if (r === 'copied') toast('Copied — paste it into CipherPost'); } }, 'Copy the link'),
+        h('p', { class: 'small muted' }, 'If the button doesn\'t open the app: copy the link, then in CipherPost tap + → Open an invite I received, and paste it.')) : null,
       !isWeb ? h('button', { onclick: () => { pendingLink = null; route(); } }, 'Back') : null,
       footer()));
   }
@@ -1701,6 +1776,21 @@ body:has(.tabbar) .toast{bottom:calc(158px + env(safe-area-inset-bottom))}
     catch (e) { await alertBox('Couldn\'t connect', plain(e)); render(); }
   }
 
+  /** For an invite link that opened in a web browser instead of the app: paste it here. */
+  async function pasteInvite() {
+    const input = h('input', { placeholder: 'Paste the invite link', 'aria-label': 'Invite link', spellcheck: 'false' });
+    const err = h('p', { class: 'err', role: 'alert' });
+    const ok = await modal('Open an invite', h('div', null,
+      h('p', { class: 'small muted' }, 'If a colleague\'s invite link opened in your web browser, copy the link from the address bar or the message and paste it here.'), input, err),
+      [{ label: 'Cancel', value: false }, { label: 'Open', value: true, primary: true, check: () => {
+        if (!/CP2[IS]\./.test(input.value)) { err.textContent = 'That doesn\'t look like a CipherPost invite link'; return false; }
+        return true;
+      } }]);
+    if (!ok) return;
+    takeLinkText(input.value.trim());
+    route();
+  }
+
   async function inviteDialog(type) {
     const patient = type === 'patient';
     const s = E.settings();
@@ -1727,10 +1817,10 @@ body:has(.tabbar) .toast{bottom:calc(158px + env(safe-area-inset-bottom))}
   }
 
   async function deliverInvite(inv) {
-    const link = E.inviteLink(inv.id);
+    const link = await E.shareLink(inv.id);
     const text = inv.type === 'patient'
       ? `CipherPost: You're invited to message your care team privately (nothing to install): ${link}`
-      : `${E.me.name} invited you to CipherPost. Open on a device with CipherPost: ${link}`;
+      : `${E.me.name} invited you to CipherPost (staff app). Open this link on the phone or PC where you use CipherPost: ${link}`;
     if (inv.phone && P.kind === 'android') {
       const r = await P.sendSms(inv.phone, text).catch(() => 'error');
       if (r === 'sent') return toast(`Invite texted to ${inv.name}`);
@@ -2111,6 +2201,7 @@ body:has(.tabbar) .toast{bottom:calc(158px + env(safe-area-inset-bottom))}
     const plus = h('button', { class: 'round primary', 'aria-label': 'New', title: 'Invite someone', onclick: e => popMenu([
       { label: 'Invite patient', onclick: () => inviteDialog('patient') },
       { label: 'Invite colleague', onclick: () => inviteDialog('staff') },
+      { label: 'Open an invite I received…', onclick: pasteInvite },
     ], e.currentTarget, 'right') }, icon('plus'));
     const n = unreadTotal();
     railBadge = h('span', { class: 'rail-badge' + (n ? '' : ' hidden') }, String(n));
@@ -2405,6 +2496,7 @@ body:has(.tabbar) .toast{bottom:calc(158px + env(safe-area-inset-bottom))}
   const newMenu = () => actionSheet('Invite someone', [
     { label: 'Invite patient', icon: 'contacts', onclick: () => inviteDialog('patient') },
     { label: 'Invite colleague', icon: 'contacts', onclick: () => inviteDialog('staff') },
+    { label: 'Open an invite I received', icon: 'plus', onclick: pasteInvite },
   ]);
 
   /** Wraps a top-level screen: header with title, the content, and the bottom tab bar. */
@@ -2578,7 +2670,7 @@ body:has(.tabbar) .toast{bottom:calc(158px + env(safe-area-inset-bottom))}
   }
 
   async function about() {
-    const v = await P.version().catch(() => '2.1');
+    const v = await P.version().catch(() => '2.2');
     await modal('About CipherPost', h('div', null,
       h('p', null, `CipherPost ${v}${P.kind === 'desktop' ? ' for Windows' : P.kind === 'android' ? ' for Android' : ''}`),
       h('p', null, 'Private messages and files between care teams and patients. Only the people in a conversation can read it.'),
