@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-+6nUeSUPpaLqshBgLO/1GSd9TKss/hJ1zos6HIUuiu4=' 'sha256-6Mgt4JPsExEeNfs+2L0oTiBp09BiGMlYlEUKjD1l5eM=' 'sha256-8seWm3lVZgoz7iiTVkXlqmYevGI0+RB9npk8ytheNqM=' 'sha256-z+G0FXQGgb8dEvI0a6X9LEGbRY0GWoyy2F7smx+Jy/A=' 'sha256-BQwdTeBGF2mE0Gppm761WqeB+W+9nsZtQvUbVjs/NuE=' 'sha256-JKyq4YBFbprkQtMKDGONJtF8WYhIzMHNKuIBcuIXIAE='; style-src 'unsafe-inline'; img-src 'self' blob: data:; media-src blob:; connect-src https://u2mnrv3unj.execute-api.us-east-1.amazonaws.com wss://6yx4yplcbl.execute-api.us-east-1.amazonaws.com https://cipherpost-files-677647025792.s3.us-east-1.amazonaws.com; manifest-src 'self'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-+6nUeSUPpaLqshBgLO/1GSd9TKss/hJ1zos6HIUuiu4=' 'sha256-6Mgt4JPsExEeNfs+2L0oTiBp09BiGMlYlEUKjD1l5eM=' 'sha256-8seWm3lVZgoz7iiTVkXlqmYevGI0+RB9npk8ytheNqM=' 'sha256-z+G0FXQGgb8dEvI0a6X9LEGbRY0GWoyy2F7smx+Jy/A=' 'sha256-TboNyzINpngeVWpslfSSzmqxki0XBM7Y1gLUmSX2VnY=' 'sha256-8H0zPKMiLOKBV6busLqlxVfkc6JRJyoTMd0p/JD7v9A='; style-src 'unsafe-inline'; img-src 'self' blob: data:; media-src blob:; connect-src https://u2mnrv3unj.execute-api.us-east-1.amazonaws.com wss://6yx4yplcbl.execute-api.us-east-1.amazonaws.com https://cipherpost-files-677647025792.s3.us-east-1.amazonaws.com; manifest-src 'self'; form-action 'none'; base-uri 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0E1117">
@@ -1330,7 +1330,7 @@ body:has(.tabbar) .toast{bottom:calc(158px + env(safe-area-inset-bottom))}
         setTimeout(() => URL.revokeObjectURL(url), 120000);
         return true;
       },
-      setInbox: async () => {}, clearInbox: async () => {}, version: async () => '2.2',
+      setInbox: async () => {}, clearInbox: async () => {}, version: async () => '2.2.1',
       storageName: 'cipherpost2',
     };
   }
@@ -2027,9 +2027,16 @@ body:has(.tabbar) .toast{bottom:calc(158px + env(safe-area-inset-bottom))}
   async function recordVoice(comp, c) {
     stopVoice();
     let stream;
-    try { stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
-    catch (e) {
-      return alertBox('Microphone not available', e && (e.name === 'NotAllowedError' || e.name === 'SecurityError') ? micHelp() : 'No microphone was found on this device.');
+    try {
+      try { stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
+      catch (e1) { if (e1 && e1.name === 'NotAllowedError') throw e1; stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }   // some phones refuse the extras
+    } catch (e) {
+      const n = (e && e.name) || 'Error';
+      return alertBox('Microphone not available',
+        n === 'NotAllowedError' || n === 'SecurityError' ? micHelp()
+        : n === 'NotReadableError' || n === 'AbortError' ? `The microphone couldn't be started. Close any other app that's using it (calls, voice recorder) and try again. If it keeps happening: ${micHelp()} (${n})`
+        : n === 'NotFoundError' || n === 'OverconstrainedError' ? `No microphone was found on this device. (${n})`
+        : `The microphone couldn't be used. (${n}${e && e.message ? ': ' + e.message : ''})`);
     }
     const type = voiceType();
     let rec;
