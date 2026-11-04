@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-6X0Qf9ZzkUcwyC1O3E/TbzPjl3HvJwFiPkmmgz/FetQ=' 'sha256-6Mgt4JPsExEeNfs+2L0oTiBp09BiGMlYlEUKjD1l5eM=' 'sha256-8seWm3lVZgoz7iiTVkXlqmYevGI0+RB9npk8ytheNqM=' 'sha256-kIPHIeGCA3FEJa/YCbZSy520jKXYRY9TBN8RhuV5E4I=' 'sha256-99XbSRCwD6i4fS7hW+O18jPpKpX0cUOKQjt0kQPxnGk=' 'sha256-yPzn69LmELfg2fymmMz9WdiLcFwisorCEIFfQPDcivE='; style-src 'unsafe-inline'; img-src 'self' blob: data:; connect-src https://u2mnrv3unj.execute-api.us-east-1.amazonaws.com wss://6yx4yplcbl.execute-api.us-east-1.amazonaws.com https://cipherpost-files-677647025792.s3.us-east-1.amazonaws.com; manifest-src 'self'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-6X0Qf9ZzkUcwyC1O3E/TbzPjl3HvJwFiPkmmgz/FetQ=' 'sha256-6Mgt4JPsExEeNfs+2L0oTiBp09BiGMlYlEUKjD1l5eM=' 'sha256-8seWm3lVZgoz7iiTVkXlqmYevGI0+RB9npk8ytheNqM=' 'sha256-tnDXEiv8xhDn1sX64/aYATguNB7X/2PvoXkFjbCrZaw=' 'sha256-99XbSRCwD6i4fS7hW+O18jPpKpX0cUOKQjt0kQPxnGk=' 'sha256-6ANg5ZjHGwL9igBGkhygOg4CTzXBN0OfE2igjHsG5xU='; style-src 'unsafe-inline'; img-src 'self' blob: data:; connect-src https://u2mnrv3unj.execute-api.us-east-1.amazonaws.com wss://6yx4yplcbl.execute-api.us-east-1.amazonaws.com https://cipherpost-files-677647025792.s3.us-east-1.amazonaws.com; manifest-src 'self'; form-action 'none'; base-uri 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0E1117">
@@ -11,7 +11,9 @@
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="CipherPost">
 <title>CipherPost Messages</title>
 <style>
-:root{--bg:#0E1117;--card:#181D27;--card2:#212836;--line:#2c3445;--accent:#3DDC97;--accentDark:#1D5E47;--text:#E9EDF3;--muted:#8B94A5;--warn:#F2B84B;--danger:#F06A6A}
+:root{--bg:#0E1117;--card:#181D27;--card2:#212836;--line:#2c3445;--accent:#3DDC97;--accentDark:#1D5E47;--text:#E9EDF3;--muted:#8B94A5;--warn:#F2B84B;--danger:#F06A6A;--onAccent:#06281B;--outText:#E9EDF3;--outMeta:#bfebd8cc;--rail:#121722;--hover:#1f2633;--sel:#173628;--got:#E0913F}
+/* light theme (Windows app; follows Windows unless chosen in Settings) */
+:root[data-theme=light]{color-scheme:light;--bg:#FAF6F2;--card:#FFFFFF;--card2:#F3EDE7;--line:#E7DDD4;--accent:#13805A;--accentDark:#DDF0E6;--text:#1E1915;--muted:#6A5E56;--warn:#965E00;--danger:#C2362F;--onAccent:#FFFFFF;--outText:#0F2E20;--outMeta:#4D6F5F;--rail:#F4EDE7;--hover:#F2EAE3;--sel:#E2F1E9;--got:#C9701C}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
 body{min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
@@ -29,14 +31,14 @@ input,textarea,select{font:inherit;width:100%;background:var(--card2);color:var(
 input:focus,textarea:focus,select:focus,button:focus-visible,.bubble:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 input.pin{text-align:center;font-size:22px;letter-spacing:.3em} input.pin::placeholder{letter-spacing:normal;font-size:16px}
 button,a.btn{font:inherit;font-weight:700;border:0;border-radius:12px;padding:12px 16px;min-height:48px;cursor:pointer;background:var(--card2);color:var(--text);width:100%;margin-top:10px;display:flex;align-items:center;justify-content:center;text-decoration:none;text-align:center}
-button.primary,a.btn.primary{background:var(--accent);color:#06281B}
+button.primary,a.btn.primary{background:var(--accent);color:var(--onAccent)}
 button.danger{background:#3a1f24;color:var(--danger)}
 button.link{background:none;color:var(--muted);font-weight:400;text-decoration:underline;min-height:0}
 button:disabled{opacity:.5;cursor:default}
 button.icon{width:auto;min-width:44px;min-height:44px;margin:0;padding:6px 10px;font-size:20px;background:transparent}
 .row{display:flex;gap:10px} .row>*{flex:1}
 .err{color:var(--danger);font-size:14px;min-height:18px;text-align:center}
-.bar{display:flex;align-items:center;gap:6px;padding:8px 8px 8px 12px;position:sticky;top:0;background:var(--bg);z-index:3;border-bottom:1px solid #1c2230}
+.bar{display:flex;align-items:center;gap:6px;padding:8px 8px 8px 12px;position:sticky;top:0;background:var(--bg);z-index:3;border-bottom:1px solid var(--line)}
 .bar-title{flex:1;min-width:0} .bar-title .t1{font-weight:700;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .bar-title .t2{font-size:13px;color:var(--accent)}
 .bar-actions{display:flex}
 .item{display:block;text-align:left;background:var(--card);font-weight:400;margin-top:8px}
@@ -44,13 +46,13 @@ button.icon{width:auto;min-width:44px;min-height:44px;margin:0;padding:6px 10px;
 .item-top{display:flex;align-items:center;gap:8px} .item-name{flex:1;font-weight:700;font-size:17px}
 .item-sub{display:flex;gap:8px;color:var(--muted);font-size:14px;margin-top:2px} .ellipsis{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .time{font-size:12px}
 .tag{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:10px;padding:0 8px}
-.badge{background:var(--accent);color:#06281B;border-radius:12px;padding:0 8px;font-size:13px;font-weight:700}
+.badge{background:var(--accent);color:var(--onAccent);border-radius:12px;padding:0 8px;font-size:13px;font-weight:700}
 .banner{background:#f2b84b22;color:var(--warn);padding:10px 14px;border-radius:12px;font-size:14px}
 .chat{display:flex;flex-direction:column;padding:0;overflow:hidden}
 .thread{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:12px 12px 16px;min-height:50vh}
 .bubble{max-width:82%;padding:8px 12px;border-radius:16px;background:var(--card2);white-space:pre-wrap;word-wrap:break-word;align-self:flex-start;cursor:default}
-.bubble.out{align-self:flex-end;background:var(--accentDark)} .bubble.failed{border:1px solid var(--danger)}
-.bubble .meta{font-size:11px;color:var(--muted);margin-top:3px} .bubble.out .meta{color:#bfebd8cc}
+.bubble.out{align-self:flex-end;background:var(--accentDark);color:var(--outText)} .bubble.failed{border:1px solid var(--danger)}
+.bubble .meta{font-size:11px;color:var(--muted);margin-top:3px} .bubble.out .meta{color:var(--outMeta)}
 .bubble .fname{font-weight:700} .bubble .thumb img{max-width:240px;max-height:240px;border-radius:10px;display:block;margin-bottom:6px}
 .bubble:has(.fname){cursor:pointer}
 .composer{display:flex;gap:6px;align-items:flex-end;padding:8px 10px calc(10px + env(safe-area-inset-bottom));background:var(--card);position:sticky;bottom:0}
@@ -64,11 +66,69 @@ button.icon{width:auto;min-width:44px;min-height:44px;margin:0;padding:6px 10px;
 .qr{width:min(320px,80vw);height:auto;background:#fff;border-radius:8px;margin:8px auto;display:block}
 .viewer-img{max-width:100%;border-radius:12px;display:block;margin:8px auto}
 .viewer-text{white-space:pre-wrap;background:var(--card);padding:12px;border-radius:12px;overflow:auto}
-.audit-row{padding:8px 4px;border-bottom:1px solid #1c2230}
+.audit-row{padding:8px 4px;border-bottom:1px solid var(--line)}
 details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14px}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#000d;color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;z-index:20;max-width:90vw}
 .footer{text-align:center;color:var(--muted);font-size:12px;padding:16px} .footer a{color:var(--muted)}
 .hidden{display:none}
+/* ---------- Windows layout: rail · list · detail ---------- */
+#app.wide{max-width:none;min-height:0}
+.desk{display:grid;grid-template-columns:78px 1fr;grid-template-rows:60px 1fr;height:100vh;overflow:hidden}
+.topbar{grid-column:1/3;display:flex;align-items:center;gap:16px;padding:0 16px;background:var(--card);border-bottom:1px solid var(--line)}
+.me{display:flex;align-items:center;gap:10px;min-width:230px}.me-name{font-weight:700;font-size:15px;line-height:1.2}.me-sub{font-size:12px;color:var(--muted)}
+label.search-wrap{flex:1;max-width:560px;display:flex;align-items:center;gap:8px;background:var(--card2);border-radius:22px;padding:0 14px;color:var(--muted);margin:0;font-size:15px}
+.search-wrap input.search{border:0;background:transparent;margin:0;padding:9px 0;border-radius:0;color:var(--text)}
+.search-wrap input.search:focus{outline:none}.search-wrap:focus-within{outline:2px solid var(--accent)}
+.offline{color:var(--warn);font-size:13px;white-space:nowrap}
+button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;margin:0 0 0 auto;flex:none}
+.rail{grid-row:2;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0;background:var(--rail);border-right:1px solid var(--line);overflow-y:auto}
+.rail-btn{position:relative;width:66px;min-height:58px;margin:0;padding:6px 2px;flex-direction:column;gap:3px;background:transparent;color:var(--muted);font-weight:600;font-size:11px;border-radius:12px}
+.rail-btn:hover{background:var(--hover)}.rail-btn.active{background:var(--sel);color:var(--accent)}
+.rail-gap{flex:1}
+.rail-badge{position:absolute;top:4px;right:8px;background:var(--danger);color:#fff;font-size:11px;line-height:18px;border-radius:9px;padding:0 5px;min-width:18px}
+.ico{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}.ico.dots{stroke-width:3.4}
+.desk-main{grid-row:2;grid-column:2;overflow-y:auto;min-width:0;background:var(--bg)}
+.desk-main>main{max-width:760px;margin:0 auto}
+.panes{display:grid;grid-template-columns:minmax(300px,360px) 1fr;height:100%}
+.pane-list{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;background:var(--card)}
+.pane-head{padding:16px 16px 0}.pane-head h2{margin:0 0 8px}
+.tabs{display:flex;gap:18px;border-bottom:1px solid var(--line)}
+.tabs button{width:auto;min-height:0;margin:0;padding:8px 2px;background:none;border-radius:0;color:var(--muted);font-size:14px;border-bottom:2px solid transparent}
+.tabs button.on{color:var(--accent);border-bottom-color:var(--accent)}
+.list{flex:1;overflow-y:auto;padding:6px 10px 16px}.list h3{margin:16px 6px 6px}
+.item.conv{display:flex;gap:12px;align-items:flex-start;background:transparent;margin-top:2px;padding:10px;border-radius:12px;min-height:0}
+.item.conv:hover{background:var(--hover)}.item.conv.selected{background:var(--sel)}
+.item.conv.unread{border-left:0}.item.conv.unread .item-name{font-weight:800}
+.conv-body{flex:1;min-width:0}.conv-body .item-name{font-size:15px}.conv .tag{display:inline-block;margin-top:5px}
+.flag{color:var(--muted);display:inline-flex}
+.avatar{flex:none;width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;background:hsl(var(--h) 40% 26%);color:hsl(var(--h) 70% 86%)}
+:root[data-theme=light] .avatar{background:hsl(var(--h) 62% 90%);color:hsl(var(--h) 52% 27%)}
+.avatar.lg{width:88px;height:88px;font-size:32px}
+.pane-detail{min-width:0;min-height:0;display:flex;flex-direction:column;background:var(--bg)}
+.chat-pane .thread{flex:1;min-height:0}.chat-pane .composer{position:static}
+.conv-head{display:flex;align-items:center;gap:12px;padding:10px 12px 10px 16px;border-bottom:1px solid var(--line);background:var(--card)}
+.conv-title{flex:1;min-width:0}.conv-title .t1{font-weight:700;font-size:18px}.conv-title .t2{font-size:13px;color:var(--muted)}
+.conv-head button.icon{color:var(--muted)}
+.pane-detail.empty{align-items:center;justify-content:center;text-align:center;padding:32px}
+.pane-detail.profile{align-items:center;text-align:center;padding:48px 32px;overflow-y:auto}
+.pane-detail h2{margin:12px 0 4px}
+.empty-art{width:88px;height:88px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;color:var(--accent)}
+.row.narrow{max-width:420px;width:100%}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(160px,1fr));gap:10px;width:100%;max-width:540px;margin:16px 0;text-align:left}
+.fact{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}.fact .k{font-size:12px;color:var(--muted)}.fact .v{font-weight:600;word-break:break-word}
+.menu{position:fixed;z-index:30;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.22);padding:6px;min-width:230px}
+.menu button{width:100%;min-height:38px;margin:0;justify-content:flex-start;gap:10px;background:none;font-weight:500;padding:8px 10px;font-size:14px;color:var(--text)}
+.menu button.danger-text{color:var(--danger)}.menu button:hover,.menu button:focus-visible{background:var(--hover);outline:none}
+.page{padding:24px 28px;max-width:1100px}.page-head h2{margin:0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:16px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.stat-label{font-size:13px;color:var(--muted)}.stat-value{font-size:32px;font-weight:700;margin:4px 0;font-variant-numeric:tabular-nums}.stat-sub{font-size:12px;color:var(--muted)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-top:12px}.panel h3{margin:0 0 8px}
+.chart{width:100%;height:auto;display:block}.chart .grid{stroke:var(--line)}.chart .axis{fill:var(--muted);font-size:11px}
+.chart .bar-sent{fill:var(--accent)}.chart .bar-got{fill:var(--got)}
+.legend{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--muted);margin-top:4px}
+.key{width:12px;height:12px;border-radius:3px;display:inline-block;margin-left:10px}.key.sent{background:var(--accent)}.key.got{background:var(--got)}
+.pad{padding:24px 8px}
 </style>
 </head>
 <body>
@@ -673,6 +733,25 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
     async mySafetyCode() { return CP2.safetyCode(CP2.b64d(this.s.me.agreePub), CP2.b64d(this.s.me.signPub)); }
     async safetyCodeOf(cid) { const c = this.contact(cid); return CP2.safetyCode(CP2.b64d(c.agreePub), CP2.b64d(c.signPub)); }
     unreadCount() { let n = 0; for (const c of Object.values(this.s.contacts)) n += c.unread || 0; return n; }
+    /** Shows a conversation as unread again (Windows conversation menu). */
+    markUnread(cid) { const c = this.contact(cid); if (c && !c.unread) { c.unread = 1; this.save(); this.changed(); } }
+    /** Per-conversation display options: 'pinned' (top of the list) or 'muted' (no new-message alerts). */
+    setFlag(cid, key, value) {
+      if (key !== 'pinned' && key !== 'muted') throw new Error('Unknown option');
+      const c = this.contact(cid); if (!c) return;
+      c[key] = !!value;
+      if (key === 'muted') this.audit('setting_changed', `Notifications for ${this.label(c)}: ${value ? 'muted' : 'on'}`);
+      this.save(); this.changed();
+    }
+    /** Deletes every message and file in a conversation from this device; the contact stays. */
+    async clearConversation(cid) {
+      const c = this.contact(cid); if (!c) return;
+      const n = c.msgs.length;
+      for (const m of c.msgs) await this.store.delBlob('f:' + m.id);
+      c.msgs = []; c.unread = 0;
+      this.audit('conversation_deleted', `${this.label(c)}, ${n} message(s) removed from this device`);
+      await this.save(); this.changed();
+    }
     markRead(cid) { const c = this.contact(cid); if (c && c.unread) { c.unread = 0; this.save(); } }
 
     // ============================================================ settings
@@ -836,7 +915,7 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
     smsNoticeDue(c) {
       if (this.role !== 'staff' || c.role !== 'patient' || !c.phone || !this.s.settings.smsNotices) return null;
       if (this.now() - (c.lastSms || 0) < SMS_GAP && !c.repliedSinceSms) return null;
-      return { phone: c.phone, text: `You have a new message from ${this.s.me.name}. Read it here: ${this.page}` };
+      return { phone: c.phone, text: `CipherPost: You have a new message from your care team. Read it here: ${this.page}` };   // no names: a text can reveal a diagnosis
     }
     noteSmsSent(cid) { const c = this.contact(cid); if (c) { c.lastSms = this.now(); c.repliedSinceSms = false; this.audit('sms_notice', `To ${this.label(c)}`); this.save(); } }
 
@@ -1182,6 +1261,7 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
   const D = G.document;
   const P = CP2.platform();
   const STAFF = P.role === 'staff';
+  const DESK = P.kind === 'desktop';   // Windows app: three-pane layout (see desk section)
   const app = D.getElementById('app');
   const relay = new CP2.Relay();
   const store = new CP2.Store(new CP2.IDBBackend(P.storageName), P.device);
@@ -1207,7 +1287,14 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
     for (const c of kids.flat(3)) if (c !== null && c !== undefined && c !== false) e.append(c.nodeType ? c : D.createTextNode(String(c)));
     return e;
   }
-  function show(...nodes) { freeBlobs(); app.replaceChildren(...nodes); app.scrollTop = 0; G.scrollTo(0, 0); }
+  function show(...nodes) {
+    freeBlobs();
+    D.querySelectorAll('.menu').forEach(m => m.remove());
+    const wide = DESK && E.isUnlocked();
+    app.classList.toggle('wide', wide);
+    app.replaceChildren(...(wide ? [deskFrame(nodes)] : nodes));
+    app.scrollTop = 0; G.scrollTo(0, 0);
+  }
   function toast(t, ms) { const d = h('div', { class: 'toast', role: 'status' }, t); D.body.append(d); setTimeout(() => d.remove(), ms || 2600); }
   function freeBlobs() { for (const u of blobUrls) URL.revokeObjectURL(u); blobUrls.clear(); }
   function blobUrl(bytes, mime) { const u = URL.createObjectURL(new Blob([bytes], { type: mime })); blobUrls.add(u); return u; }
@@ -1288,6 +1375,12 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
   }
   function render(soft) {
     if (!E.isUnlocked()) return;
+    if (DESK) {
+      if (view.name === 'contacts') return deskContacts(soft);
+      if (view.name === 'activity') return soft ? updateBadge() : deskActivity();
+      if (view.name === 'chat' && !E.contact(view.cid)) view = { name: 'home' };
+      if (view.name === 'home' || view.name === 'chat') return deskMessages(soft);
+    }
     if (view.name === 'chat' && E.contact(view.cid)) return soft ? renderThread() : screenChat(view.cid);
     if (soft && (view.name === 'settings' || view.name === 'file' || view.name === 'help' || view.name === 'audit')) return;
     if (view.name === 'settings') return screenSettings();
@@ -1450,17 +1543,18 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
     startTimers();
     P.setInbox(E.me.relay, E.me.inbox).catch(() => {});
     unsubscribe();
-    unsubscribe = relay.subscribe(E.me.relay, E.me.inbox, ev => E.live(ev).then(() => notifyIfHidden()));
+    unsubscribe = relay.subscribe(E.me.relay, E.me.inbox, ev => { const before = unmutedUnread(); E.live(ev).then(() => { if (unmutedUnread() > before) notifyIfHidden(); }); });
     if (pendingLink) { const l = pendingLink; pendingLink = null; await handleInviteWhileUnlocked(l); }
     else render();
     syncNow();
   }
   async function syncNow() {
-    try { const r = await E.sync(); if (r.received) notifyIfHidden(); setOffline(false); }
+    try { const before = E.isUnlocked() ? unmutedUnread() : 0; await E.sync(); if (E.isUnlocked() && unmutedUnread() > before) notifyIfHidden(); setOffline(false); }
     catch (e) { setOffline(true); }
   }
   let offline = false;
   function setOffline(v) { if (offline !== v) { offline = v; scheduleRender(); } }
+  const unmutedUnread = () => E.contacts().reduce((n, c) => n + (c.muted ? 0 : (c.unread || 0)), 0);
   function notifyIfHidden() { if (D.hidden && P.notify) P.notify('CipherPost', 'You have a new message'); }
 
   function startTimers() {
@@ -1560,7 +1654,7 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
   async function deliverInvite(inv) {
     const link = E.inviteLink(inv.id);
     const text = inv.type === 'patient'
-      ? `${E.me.name} invited you to message them (nothing to install): ${link}`
+      ? `CipherPost: You're invited to message your care team privately (nothing to install): ${link}`
       : `${E.me.name} invited you to CipherPost. Open on a device with CipherPost: ${link}`;
     if (inv.phone && P.kind === 'android') {
       const r = await P.sendSms(inv.phone, text).catch(() => 'error');
@@ -1620,12 +1714,11 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
 
   // ============================================================ conversation
   let threadEl = null, chatCid = null;
-  function screenChat(cid) {
+  /** The message thread and the composer for one conversation (used by both layouts). */
+  function chatParts(cid) {
     const c = E.contact(cid);
     chatCid = cid;
     E.markRead(cid);
-    const back = iconBtn('Back', () => go({ name: 'home' }), '‹');
-    const info = iconBtn('Contact details', () => contactInfo(cid), 'ⓘ');
     threadEl = h('div', { class: 'thread', 'aria-live': 'polite' });
     const input = h('textarea', { rows: 2, placeholder: `Message ${c.name}`, 'aria-label': 'Message', maxlength: 20000 });
     input.addEventListener('input', () => { lastActive = Date.now(); });
@@ -1649,9 +1742,15 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
       } catch (e) { alertBox('Couldn\'t send file', plain(e)); }
     });
     const attach = iconBtn('Attach a file', () => fileIn.click(), '📎');
+    return { thread: threadEl, composer: h('div', { class: 'composer' }, attach, input, send, fileIn) };
+  }
+  function screenChat(cid) {
+    const c = E.contact(cid);
+    const back = iconBtn('Back', () => go({ name: 'home' }), '‹');
+    const info = iconBtn('Contact details', () => contactInfo(cid), 'ⓘ');
+    const parts = chatParts(cid);
     show(header(c.name, c.role === 'patient' ? 'Patient' : STAFF ? 'Colleague' : 'Care team', back, info),
-      h('main', { class: 'chat' }, threadEl),
-      h('div', { class: 'composer' }, attach, input, send, fileIn));
+      h('main', { class: 'chat' }, parts.thread), parts.composer);
     renderThread(true);
   }
 
@@ -1666,10 +1765,10 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
       const now = Date.now();
       if (c.lastEmailPrompt && now - c.lastEmailPrompt < CP2.SMS_GAP && !c.repliedSinceSms) return;
       c.lastEmailPrompt = now;
-      const text = `You have a new message from ${E.me.name}. Read it here: ${P.page}`;
+      const text = `CipherPost: You have a new message from your care team. Read it here: ${P.page}`;
       const bar = h('div', { class: 'notice-bar' }, `Let ${firstName(c.name)} know there's a message?`,
         c.phone && canQr() ? h('button', { onclick: async () => { bar.remove(); await textFromPhone(c.name, c.phone, text); E.noteSmsSent(c.id); } }, 'Text from my phone') : null,
-        c.email ? h('button', { onclick: async () => { await P.sendEmail(c.email, `New message from ${E.me.name}`, text); E.noteSmsSent(c.id); bar.remove(); } }, 'Email notice') : null,
+        c.email ? h('button', { onclick: async () => { await P.sendEmail(c.email, 'New message from your care team', text); E.noteSmsSent(c.id); bar.remove(); } }, 'Email notice') : null,
         h('button', { onclick: async () => { const s = await P.shareText(text); if (s === 'copied') toast('Notice copied'); E.noteSmsSent(c.id); bar.remove(); } }, 'Copy notice'),
         h('button', { class: 'link', onclick: () => bar.remove() }, 'No'));
       const comp = D.querySelector('.composer'); if (comp) comp.before(bar);
@@ -1754,6 +1853,321 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
     catch (e) { alertBox('Couldn\'t save', plain(e)); }
   }
 
+  // ============================================================ Windows layout (three panes: rail · list · detail)
+  // Used only by the Windows app. The Android app and the patient page keep the single-column phone layout.
+  let q = '';                 // search text
+  let filt = 'all';           // all | unread (messages list)
+  let listEl = null, railBadge = null;
+
+  const ICONS = {
+    messages: 'M4 5.5h16v10.5H9l-5 4z',
+    contacts: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.5 20c.6-3.6 3.8-5.5 7.5-5.5s6.9 1.9 7.5 5.5',
+    activity: 'M5 20v-7M10 20V8M15 20v-5M20 20V4',
+    settings: 'M4 7h8m4 0h4M4 17h4m4 0h8M14 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM10 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4z',
+    help: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 1 1 3.4 2.4c-.6.3-1 .8-1 1.5v.4M12 17.2v.1',
+    lock: 'M6.5 11h11v9h-11zM9 11V8a3 3 0 0 1 6 0v3',
+    plus: 'M12 5v14M5 12h14',
+    search: 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4',
+    more: 'M6 12h.01M12 12h.01M18 12h.01',
+    info: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v6M12 7.6v.1',
+    pin: 'M9 4h6l-1 5.5 3 3.5H7l3-3.5zM12 13v7',
+    muted: 'M7 16h10l-1.5-2.5V10a3.5 3.5 0 0 0-5.6-2.8M8.5 10.5v3L7 16M10.5 19a1.6 1.6 0 0 0 3 0M4 4l16 16',
+  };
+  function icon(name, size) {
+    const NS = 'http://www.w3.org/2000/svg', s = D.createElementNS(NS, 'svg');
+    s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('width', size || 20); s.setAttribute('height', size || 20);
+    s.setAttribute('aria-hidden', 'true'); s.setAttribute('class', 'ico' + (name === 'more' ? ' dots' : ''));
+    const p = D.createElementNS(NS, 'path'); p.setAttribute('d', ICONS[name]);
+    s.append(p);
+    return s;
+  }
+  function initials(name) {
+    const w = String(name || '?').replace(/^(dr|mr|mrs|ms|miss|prof|nurse)\.?\s+/i, '').split(/\s+/).filter(Boolean);
+    return ((w[0] || '?')[0] + (w.length > 1 ? w[w.length - 1][0] : '')).toUpperCase();
+  }
+  function avatar(name, id, size) {
+    let hsh = 0; for (const ch of String(id || name)) hsh = (hsh * 31 + ch.charCodeAt(0)) >>> 0;
+    return h('span', { class: 'avatar' + (size === 'lg' ? ' lg' : ''), style: `--h:${hsh % 360}`, 'aria-hidden': 'true' }, initials(name));
+  }
+  const unreadTotal = () => E.contacts().reduce((n, c) => n + (c.unread || 0), 0);
+  const roleLabel = c => c.role === 'patient' ? 'patient' : 'colleague';
+  const matches = c => !q || (c.name || '').toLowerCase().includes(q) || (c.phone || '').includes(q) || (c.email || '').toLowerCase().includes(q)
+    || c.msgs.some(m => (m.text || '').toLowerCase().includes(q) || (m.file && m.file.name.toLowerCase().includes(q)));
+  const sorted = list => list.slice().sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (b.last || 0) - (a.last || 0));
+
+  /** Wraps a screen in the Windows frame: top bar, icon rail, content. */
+  function deskFrame(content) {
+    const section = view.name === 'contacts' ? 'contacts' : view.name === 'activity' ? 'activity'
+      : ['settings', 'audit'].includes(view.name) ? 'settings' : view.name === 'help' ? 'help' : 'messages';
+    const search = h('input', { type: 'search', class: 'search', placeholder: 'Search conversations and contacts', 'aria-label': 'Search', value: q });
+    search.addEventListener('input', () => {
+      q = search.value.trim().toLowerCase();
+      if (section === 'messages') fillMessageList(); else if (section === 'contacts') fillContactList(); else { go({ name: 'home' }); }
+    });
+    const plus = h('button', { class: 'round primary', 'aria-label': 'New', title: 'Invite someone', onclick: e => popMenu([
+      { label: 'Invite patient', onclick: () => inviteDialog('patient') },
+      { label: 'Invite colleague', onclick: () => inviteDialog('staff') },
+    ], e.currentTarget, 'right') }, icon('plus'));
+    const n = unreadTotal();
+    railBadge = h('span', { class: 'rail-badge' + (n ? '' : ' hidden') }, String(n));
+    const railBtn = (key, label, ic, onclick, extra) => h('button', { class: 'rail-btn' + (section === key ? ' active' : ''), 'aria-label': label, title: label, onclick },
+      icon(ic, 22), h('span', null, key === 'settings' ? 'Settings' : label), extra || null);
+    return h('div', { class: 'desk' },
+      h('header', { class: 'topbar' },
+        h('div', { class: 'me' }, avatar(E.me.name, E.myId), h('div', null, h('div', { class: 'me-name' }, E.me.name), h('div', { class: 'me-sub' }, 'CipherPost'))),
+        h('label', { class: 'search-wrap' }, icon('search', 18), search),
+        offline ? h('span', { class: 'offline' }, 'Offline — will send when you\'re back online') : null,
+        plus),
+      h('nav', { class: 'rail', 'aria-label': 'Sections' },
+        railBtn('messages', 'Messages', 'messages', () => go({ name: view.cid && view.name === 'chat' ? 'chat' : 'home', cid: view.cid }), railBadge),
+        railBtn('contacts', 'Contacts', 'contacts', () => go({ name: 'contacts' })),
+        railBtn('activity', 'Activity', 'activity', () => go({ name: 'activity' })),
+        h('div', { class: 'rail-gap' }),
+        railBtn('settings', 'Settings and help', 'settings', () => go({ name: 'settings' })),
+        railBtn('help', 'Help', 'help', () => go({ name: 'help' })),
+        h('button', { class: 'rail-btn', 'aria-label': 'Lock', title: 'Lock', onclick: () => lockNow('Locked by user') }, icon('lock', 22), h('span', null, 'Lock'))),
+      h('div', { class: 'desk-main' }, content));
+  }
+
+  /** Small floating menu next to a button or at the mouse. */
+  function popMenu(items, anchor, align, at) {
+    D.querySelectorAll('.menu').forEach(m => m.remove());
+    const menu = h('div', { class: 'menu', role: 'menu' }, items.filter(Boolean).map(it => h('button', { role: 'menuitem', class: it.danger ? 'danger-text' : '', onclick: () => { close(); it.onclick(); } },
+      it.icon ? icon(it.icon, 18) : null, it.label)));
+    const close = () => { menu.remove(); D.removeEventListener('pointerdown', outside, true); D.removeEventListener('keydown', esc, true); };
+    const outside = e => { if (!menu.contains(e.target)) close(); };
+    const esc = e => { if (e.key === 'Escape') close(); };
+    D.body.append(menu);
+    const r = at ? { left: at.x, right: at.x, bottom: at.y, top: at.y } : anchor.getBoundingClientRect();
+    const mw = menu.offsetWidth, mh = menu.offsetHeight;
+    let x = align === 'right' ? r.right - mw : r.left, y = r.bottom + 6;
+    if (y + mh > G.innerHeight - 8) y = Math.max(8, r.top - mh - 6);
+    menu.style.left = Math.max(8, Math.min(x, G.innerWidth - mw - 8)) + 'px';
+    menu.style.top = y + 'px';
+    setTimeout(() => { D.addEventListener('pointerdown', outside, true); D.addEventListener('keydown', esc, true); }, 0);
+    const first = menu.querySelector('button'); if (first) first.focus();
+  }
+
+  function conversationMenu(c, anchor, at) {
+    popMenu([
+      c.unread ? { label: 'Mark as read', icon: 'messages', onclick: () => { E.markRead(c.id); scheduleRender(); } }
+               : { label: 'Mark as unread', icon: 'messages', onclick: () => { E.markUnread(c.id); if (view.cid === c.id) go({ name: 'home' }); else scheduleRender(); } },
+      { label: c.pinned ? 'Unpin' : 'Pin to top', icon: 'pin', onclick: () => { E.setFlag(c.id, 'pinned', !c.pinned); scheduleRender(); } },
+      { label: c.muted ? 'Unmute notifications' : 'Mute notifications', icon: 'muted', onclick: () => { E.setFlag(c.id, 'muted', !c.muted); scheduleRender(); } },
+      { label: 'Contact details', icon: 'info', onclick: () => go({ name: 'contacts', cid: c.id }) },
+      { label: 'Delete conversation', danger: true, onclick: async () => {
+        if (await confirmBox(`Delete the conversation with ${c.name}?`, 'Removes all messages and files with them from this device. They stay in your contacts.', 'Delete', true)) { await E.clearConversation(c.id); render(); }
+      } },
+    ], anchor, null, at);
+  }
+
+  // ---------------------------------------------------------------- messages
+  function deskMessages(soft) {
+    if (soft && listEl && D.contains(listEl)) { fillMessageList(); renderThread(); updateBadge(); return; }
+    const tabs = h('div', { class: 'tabs', role: 'tablist' },
+      [['all', 'All'], ['unread', 'Unread']].map(([k, l]) => h('button', { role: 'tab', class: filt === k ? 'on' : '', 'aria-selected': String(filt === k), onclick: () => { filt = k; render(); } }, l)));
+    listEl = h('div', { class: 'list', role: 'list' });
+    const listPane = h('section', { class: 'pane-list' }, h('div', { class: 'pane-head' }, h('h2', null, 'Messages'), tabs), listEl);
+    const c = view.name === 'chat' ? E.contact(view.cid) : null;
+    let detail;
+    if (c) {
+      const parts = chatParts(c.id);
+      const more = h('button', { class: 'icon', 'aria-label': 'More', title: 'More', onclick: e => conversationMenu(E.contact(c.id), e.currentTarget) }, icon('more'));
+      const info = h('button', { class: 'icon', 'aria-label': 'Contact details', title: 'Contact details', onclick: () => go({ name: 'contacts', cid: c.id }) }, icon('info'));
+      detail = h('section', { class: 'pane-detail chat-pane' },
+        h('div', { class: 'conv-head' }, avatar(c.name, c.id),
+          h('div', { class: 'conv-title' }, h('div', { class: 't1' }, c.name), h('div', { class: 't2' }, c.role === 'patient' ? 'Patient' : 'Colleague', c.phone ? ` · ${c.phone}` : '')),
+          info, more),
+        parts.thread, parts.composer);
+    } else {
+      const none = !E.contacts().length;
+      detail = h('section', { class: 'pane-detail empty' }, h('div', { class: 'empty-art' }, icon('messages', 44)),
+        h('h2', null, none ? 'Start your first conversation' : 'Select a conversation'),
+        h('p', { class: 'muted' }, none ? 'Invite a patient or colleague. They appear in your messages as soon as they connect.' : 'Pick a conversation on the left, or press + to invite someone.'),
+        none ? h('div', { class: 'row narrow' }, h('button', { class: 'primary', onclick: () => inviteDialog('patient') }, 'Invite patient'), h('button', { onclick: () => inviteDialog('staff') }, 'Invite colleague')) : null);
+    }
+    show(h('div', { class: 'panes' }, listPane, detail));
+    fillMessageList();
+    if (c) { renderThread(true); const ta = D.querySelector('.chat-pane textarea'); if (ta) ta.focus(); }
+  }
+  function updateBadge() { if (!railBadge) return; const n = unreadTotal(); railBadge.textContent = String(n); railBadge.classList.toggle('hidden', !n); }
+
+  function fillMessageList() {
+    if (!listEl) return;
+    const items = [];
+    const cs = sorted(E.contacts().filter(matches).filter(c => filt !== 'unread' || c.unread));
+    for (const c of cs) {
+      const last = c.msgs[c.msgs.length - 1];
+      const prev = last ? (last.out ? 'You: ' : '') + (last.file ? `${fileIcon(last.file.mime)} ${last.file.name}` : last.text.replace(/\s+/g, ' ')) : (c.joined ? 'Connected — say hello' : 'No messages yet');
+      const sel = view.name === 'chat' && view.cid === c.id;
+      items.push(h('button', { class: 'item conv' + (c.unread ? ' unread' : '') + (sel ? ' selected' : ''), role: 'listitem',
+                               onclick: () => go({ name: 'chat', cid: c.id }),
+                               oncontextmenu: e => { e.preventDefault(); conversationMenu(c, null, { x: e.clientX, y: e.clientY }); } },
+        avatar(c.name, c.id),
+        h('div', { class: 'conv-body' },
+          h('div', { class: 'item-top' }, h('span', { class: 'item-name' }, c.name),
+            c.pinned ? h('span', { class: 'flag', title: 'Pinned' }, icon('pin', 14)) : null,
+            c.muted ? h('span', { class: 'flag', title: 'Muted' }, icon('muted', 14)) : null,
+            last ? h('span', { class: 'time' }, fmtTime(last.rx || last.ts)) : null),
+          h('div', { class: 'item-sub' }, h('span', { class: 'ellipsis' }, prev), c.unread ? h('span', { class: 'badge' }, String(c.unread)) : null),
+          h('span', { class: 'tag' }, roleLabel(c)))));
+    }
+    const waiting = E.pendingInvites().filter(i => !q || i.name.toLowerCase().includes(q));
+    if (waiting.length && filt === 'all') {
+      items.push(h('h3', null, 'Waiting to connect'));
+      for (const i of waiting) items.push(h('button', { class: 'item conv waiting', onclick: () => go({ name: 'contacts', inv: i.id }) },
+        avatar(i.name, i.id),
+        h('div', { class: 'conv-body' }, h('div', { class: 'item-top' }, h('span', { class: 'item-name' }, i.name), h('span', { class: 'time' }, fmtTime(i.created))),
+          h('div', { class: 'item-sub warn' }, 'Invited · appears here once they connect'), h('span', { class: 'tag' }, i.type === 'patient' ? 'patient' : 'colleague'))));
+    }
+    if (!cs.length && !waiting.length) items.push(h('p', { class: 'muted c pad' }, q ? 'Nothing matches your search.' : filt === 'unread' ? 'No unread messages.' : 'No conversations yet.'));
+    listEl.replaceChildren(...items);
+  }
+
+  // ---------------------------------------------------------------- contacts
+  let contactListEl = null;
+  function deskContacts(soft) {
+    if (soft && contactListEl && D.contains(contactListEl)) { fillContactList(); updateBadge(); return; }
+    contactListEl = h('div', { class: 'list', role: 'list' });
+    const listPane = h('section', { class: 'pane-list' }, h('div', { class: 'pane-head' }, h('h2', null, 'Contacts')), contactListEl);
+    let detail;
+    const c = view.cid ? E.contact(view.cid) : null;
+    const inv = view.inv ? E.pendingInvites().find(i => i.id === view.inv) : null;
+    if (c) {
+      const sent = c.msgs.filter(m => m.out).length, got = c.msgs.length - sent;
+      const last = c.msgs[c.msgs.length - 1];
+      detail = h('section', { class: 'pane-detail profile' },
+        avatar(c.name, c.id, 'lg'), h('h2', null, c.name), h('p', { class: 'muted' }, c.role === 'patient' ? 'Patient' : 'Colleague'),
+        h('div', { class: 'facts' },
+          fact('Mobile', c.phone || '—'), fact('Email', c.email || '—'),
+          fact('Connected', fmtTime(c.joined || c.created)), fact('Messages', `${sent} sent · ${got} received`),
+          fact('Last activity', last ? fmtTime(last.rx || last.ts) : '—'),
+          fact('Notifications', c.muted ? 'Muted' : 'On')),
+        h('div', { class: 'row narrow' },
+          h('button', { class: 'primary', onclick: () => go({ name: 'chat', cid: c.id }) }, 'Message'),
+          h('button', { onclick: e => conversationMenu(c, e.currentTarget) }, 'More…')),
+        h('button', { class: 'link danger-text', onclick: async () => {
+          if (await confirmBox(`Delete ${c.name}?`, 'Removes them and your conversation from this device. You would need to invite them again.', 'Delete', true)) { await E.deleteContact(c.id); go({ name: 'contacts' }); }
+        } }, 'Delete contact'));
+    } else if (inv) {
+      detail = h('section', { class: 'pane-detail profile' },
+        avatar(inv.name, inv.id, 'lg'), h('h2', null, inv.name), h('p', { class: 'muted' }, `Invited ${inv.type === 'patient' ? 'patient' : 'colleague'} · waiting to connect`),
+        h('div', { class: 'facts' }, fact('Mobile', inv.phone || '—'), fact('Email', inv.email || '—'), fact('Invited', fmtTime(inv.created)),
+          fact('Invite expires', fmtTime(inv.created + CP2.INVITE_LIFE))),
+        h('p', { class: 'muted small' }, 'They appear in your messages as soon as they open the invite and connect. Each invite works once.'),
+        h('div', { class: 'row narrow' },
+          h('button', { class: 'primary', onclick: () => deliverInvite(inv) }, 'Send again'),
+          h('button', { class: 'danger', onclick: async () => { await E.cancelInvite(inv.id); go({ name: 'contacts' }); } }, 'Cancel invite')));
+    } else {
+      detail = h('section', { class: 'pane-detail empty' }, h('div', { class: 'empty-art' }, icon('contacts', 44)),
+        h('h2', null, 'Your contacts'), h('p', { class: 'muted' }, 'Patients and colleagues you\'re connected with, and invites that are still open.'),
+        h('div', { class: 'row narrow' }, h('button', { class: 'primary', onclick: () => inviteDialog('patient') }, 'Invite patient'), h('button', { onclick: () => inviteDialog('staff') }, 'Invite colleague')));
+    }
+    show(h('div', { class: 'panes' }, listPane, detail));
+    fillContactList();
+  }
+  const fact = (k, v) => h('div', { class: 'fact' }, h('div', { class: 'k' }, k), h('div', { class: 'v' }, v));
+
+  function fillContactList() {
+    if (!contactListEl) return;
+    const all = E.contacts().filter(matches).sort((a, b) => a.name.localeCompare(b.name));
+    const group = (title, list) => list.length ? [h('h3', null, `${title} (${list.length})`), ...list.map(c =>
+      h('button', { class: 'item conv' + (view.cid === c.id ? ' selected' : ''), role: 'listitem', onclick: () => go({ name: 'contacts', cid: c.id }),
+                    oncontextmenu: e => { e.preventDefault(); conversationMenu(c, null, { x: e.clientX, y: e.clientY }); } },
+        avatar(c.name, c.id), h('div', { class: 'conv-body' }, h('div', { class: 'item-top' }, h('span', { class: 'item-name' }, c.name)),
+          h('div', { class: 'item-sub' }, h('span', { class: 'ellipsis' }, [c.phone, c.email].filter(Boolean).join(' · ') || (c.role === 'patient' ? 'Patient' : 'Colleague'))),
+          h('span', { class: 'tag' }, roleLabel(c)))))] : [];
+    const inv = E.pendingInvites().filter(i => !q || i.name.toLowerCase().includes(q));
+    const items = [...group('Patients', all.filter(c => c.role === 'patient')), ...group('Colleagues', all.filter(c => c.role !== 'patient'))];
+    if (inv.length) {
+      items.push(h('h3', null, `Waiting to connect (${inv.length})`));
+      for (const i of inv) items.push(h('button', { class: 'item conv waiting' + (view.inv === i.id ? ' selected' : ''), onclick: () => go({ name: 'contacts', inv: i.id }) },
+        avatar(i.name, i.id), h('div', { class: 'conv-body' }, h('div', { class: 'item-top' }, h('span', { class: 'item-name' }, i.name)),
+          h('div', { class: 'item-sub warn' }, `Invited ${fmtTime(i.created)}`), h('span', { class: 'tag' }, i.type === 'patient' ? 'patient' : 'colleague'))));
+    }
+    if (!items.length) items.push(h('p', { class: 'muted c pad' }, q ? 'Nothing matches your search.' : 'No contacts yet. Press + to invite someone.'));
+    contactListEl.replaceChildren(...items);
+  }
+
+  // ---------------------------------------------------------------- activity
+  function deskActivity() {
+    const DAY = 86400000, now = Date.now(), start = new Date(); start.setHours(0, 0, 0, 0);
+    const days = Array.from({ length: 7 }, (_, i) => start.getTime() - (6 - i) * DAY);
+    const sent = Array(7).fill(0), got = Array(7).fill(0);
+    let replyTotal = 0, replyCount = 0;
+    const waiting = [];
+    for (const c of E.contacts()) {
+      let pendingSince = 0;
+      for (const m of c.msgs) {
+        const t = m.out ? m.ts : (m.rx || m.ts);
+        const d = days.findIndex(s => t >= s && t < s + DAY);
+        if (d >= 0) (m.out ? sent : got)[d]++;
+        if (c.role !== 'patient') continue;
+        if (!m.out && !pendingSince) pendingSince = t;
+        if (m.out && pendingSince) { if (t >= days[0]) { replyTotal += t - pendingSince; replyCount++; } pendingSince = 0; }
+      }
+      if (c.role === 'patient' && pendingSince) waiting.push({ c, since: pendingSince });
+    }
+    const sum = a => a.reduce((x, y) => x + y, 0);
+    const dur = ms => ms < 3600000 ? `${Math.max(1, Math.round(ms / 60000))} min` : ms < DAY ? `${(ms / 3600000).toFixed(1)} h` : `${(ms / DAY).toFixed(1)} days`;
+    const card = (label, value, sub) => h('div', { class: 'stat' }, h('div', { class: 'stat-label' }, label), h('div', { class: 'stat-value' }, value), sub ? h('div', { class: 'stat-sub' }, sub) : null);
+    const patients = E.contacts().filter(c => c.role === 'patient').length;
+    show(h('div', { class: 'page' },
+      h('div', { class: 'page-head' }, h('h2', null, 'Activity'), h('p', { class: 'muted' }, 'Your last 7 days, worked out on this computer from your own conversations.')),
+      h('div', { class: 'stats' },
+        card('Messages sent', String(sum(sent)), 'last 7 days'),
+        card('Messages received', String(sum(got)), 'last 7 days'),
+        card('Unread now', String(unreadTotal()), unreadTotal() ? 'waiting for you' : 'all caught up'),
+        card('Average reply time', replyCount ? dur(replyTotal / replyCount) : '—', replyCount ? `to patients · ${replyCount} repl${replyCount > 1 ? 'ies' : 'y'}` : 'no patient replies yet'),
+        card('Contacts', String(E.contacts().length), `${patients} patient${patients === 1 ? '' : 's'} · ${E.contacts().length - patients} colleague${E.contacts().length - patients === 1 ? '' : 's'}`)),
+      h('div', { class: 'panel' }, h('h3', null, 'Messages per day'), barChart(days, sent, got)),
+      h('div', { class: 'panel' }, h('h3', null, `Patients waiting for a reply (${waiting.length})`),
+        waiting.length ? waiting.sort((a, b) => a.since - b.since).map(w => h('button', { class: 'item conv', onclick: () => go({ name: 'chat', cid: w.c.id }) },
+          avatar(w.c.name, w.c.id), h('div', { class: 'conv-body' }, h('div', { class: 'item-top' }, h('span', { class: 'item-name' }, w.c.name), h('span', { class: 'time' }, `waiting ${dur(now - w.since)}`)))))
+          : h('p', { class: 'muted' }, 'Nobody is waiting — every patient message has a reply.'))));
+  }
+  function barChart(days, sent, got) {
+    const NS = 'http://www.w3.org/2000/svg', W = 640, H = 200, padL = 28, padB = 26, top = 12;
+    const max = Math.max(4, ...sent, ...got), step = (W - padL) / 7, bw = Math.min(18, step / 3.2);
+    const svg = D.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('class', 'chart'); svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', `Messages per day for the last 7 days: sent ${sent.join(', ')}; received ${got.join(', ')}`);
+    const el = (tag, at, text) => { const e = D.createElementNS(NS, tag); for (const k in at) e.setAttribute(k, at[k]); if (text !== undefined) e.textContent = text; svg.append(e); return e; };
+    const y = v => top + (H - padB - top) * (1 - v / max);
+    for (const v of [0, Math.round(max / 2), max]) { el('line', { x1: padL, x2: W, y1: y(v), y2: y(v), class: 'grid' }); el('text', { x: padL - 6, y: y(v) + 4, class: 'axis', 'text-anchor': 'end' }, String(v)); }
+    days.forEach((d, i) => {
+      const cx = padL + step * i + step / 2;
+      const bar = (v, x, cls, label) => { if (!v) return; const r = el('rect', { x, y: y(v), width: bw, height: H - padB - y(v), rx: 3, class: cls }); const t = D.createElementNS(NS, 'title'); t.textContent = label; r.append(t); };
+      const day = new Date(d).toLocaleDateString([], { weekday: 'short' });
+      bar(sent[i], cx - bw - 1.5, 'bar-sent', `${day}: ${sent[i]} sent`);
+      bar(got[i], cx + 1.5, 'bar-got', `${day}: ${got[i]} received`);
+      el('text', { x: cx, y: H - 8, class: 'axis', 'text-anchor': 'middle' }, day);
+    });
+    return h('div', null, svg, h('div', { class: 'legend' }, h('span', { class: 'key sent' }), 'Sent', h('span', { class: 'key got' }), 'Received'));
+  }
+
+  // ---------------------------------------------------------------- appearance (Windows)
+  const THEME_KEY = 'cp2-theme';
+  function themeChoice() { try { return G.localStorage.getItem(THEME_KEY) || 'system'; } catch (e) { return 'system'; } }
+  function applyTheme() {
+    if (!DESK) return;
+    const ch = themeChoice();
+    const dark = ch === 'dark' || (ch === 'system' && G.matchMedia && G.matchMedia('(prefers-color-scheme: dark)').matches);
+    D.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  }
+  async function chooseTheme() {
+    const cur = themeChoice();
+    const sel = h('select', { 'aria-label': 'Appearance' }, [['system', 'Follow Windows'], ['light', 'Light'], ['dark', 'Dark']].map(([v, l]) => h('option', { value: v, selected: v === cur ? 'selected' : null }, l)));
+    if (await modal('Appearance', sel, [{ label: 'Cancel', value: false }, { label: 'Save', value: true, primary: true }])) {
+      try { G.localStorage.setItem(THEME_KEY, sel.value); } catch (e) { /* stays for this session */ }
+      applyTheme(); render();
+    }
+  }
+  if (DESK) {
+    applyTheme();
+    if (G.matchMedia) { const mq = G.matchMedia('(prefers-color-scheme: dark)'); (mq.addEventListener ? mq.addEventListener('change', applyTheme) : mq.addListener(applyTheme)); }
+  }
+
   // ============================================================ settings, audit, help, about
   async function screenSettings() {
     const back = iconBtn('Back', () => go({ name: 'home' }), '‹');
@@ -1789,6 +2203,7 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
       if (P.kind === 'android') rows.push(row('Text patients a notice when you message them', s.smsNotices ? 'On — no message content is included' : 'Off', async () => { await E.setSetting('smsNotices', !s.smsNotices, 'SMS notices'); render(); }));
       rows.push(row('Audit log', 'Every access, message and change, tamper-evident', () => go({ name: 'audit' })));
     }
+    if (DESK) { rows.push(h('h3', null, 'Display')); rows.push(row('Appearance', { system: 'Follow Windows', light: 'Light', dark: 'Dark' }[themeChoice()], chooseTheme)); }
     rows.push(h('h3', null, 'Account'));
     rows.push(row('Change passcode', null, changePasscode));
     rows.push(row('Lock now', null, () => lockNow('Locked by user')));
@@ -1834,7 +2249,8 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
     const back = iconBtn('Back', () => go({ name: 'settings' }), '‹');
     const sec = (t, ...p) => h('section', { class: 'card' }, h('h3', null, t), p.map(x => h('p', null, x)));
     const staff = [
-      sec('Inviting a patient', 'Tap Invite patient, enter their name and mobile number or email, and send. They tap the link, choose a passcode, and appear in your conversations by themselves. Patients install nothing.'),
+      DESK ? sec('Finding your way', 'Messages, Contacts and Activity are on the left. Press + at the top right to invite someone. Right-click a conversation to mark it unread, pin it to the top, mute its notifications or delete it. The search box finds people and words in your messages.') : null,
+      sec('Inviting a patient', (DESK ? 'Press + and choose Invite patient' : 'Tap Invite patient') + ', enter their name and mobile number or email, and send. They tap the link, choose a passcode, and appear in your conversations by themselves. Patients install nothing.'),
       sec('Inviting a colleague', 'Tap Invite colleague. They open the link on a phone or PC with CipherPost and tap Connect. Each invite works once and expires after 30 days; until then it shows under Waiting to connect.'),
       sec('Messages', 'Type and tap Send (Ctrl+Enter on a PC). Messages arrive by themselves. Sending… → Sent ✓ → Delivered ✓✓ once it has reached their device. If someone is offline, CipherPost keeps re-sending for up to 14 days.'),
       sec('Patients are notified', P.kind === 'android' ? 'When you message a patient who has a mobile number, the app texts them a short notice (no message content). Turn this off in Settings.' : 'After messaging a patient, CipherPost offers to let them know: "Text from my phone" shows a QR code — point your phone\'s camera at it and your texting app opens with the notice ready to send. Email and Copy work too. The notice never contains the message.'),
