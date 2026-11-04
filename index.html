@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-6X0Qf9ZzkUcwyC1O3E/TbzPjl3HvJwFiPkmmgz/FetQ=' 'sha256-6Mgt4JPsExEeNfs+2L0oTiBp09BiGMlYlEUKjD1l5eM=' 'sha256-8seWm3lVZgoz7iiTVkXlqmYevGI0+RB9npk8ytheNqM=' 'sha256-tnDXEiv8xhDn1sX64/aYATguNB7X/2PvoXkFjbCrZaw=' 'sha256-99XbSRCwD6i4fS7hW+O18jPpKpX0cUOKQjt0kQPxnGk=' 'sha256-6ANg5ZjHGwL9igBGkhygOg4CTzXBN0OfE2igjHsG5xU='; style-src 'unsafe-inline'; img-src 'self' blob: data:; connect-src https://u2mnrv3unj.execute-api.us-east-1.amazonaws.com wss://6yx4yplcbl.execute-api.us-east-1.amazonaws.com https://cipherpost-files-677647025792.s3.us-east-1.amazonaws.com; manifest-src 'self'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-6X0Qf9ZzkUcwyC1O3E/TbzPjl3HvJwFiPkmmgz/FetQ=' 'sha256-6Mgt4JPsExEeNfs+2L0oTiBp09BiGMlYlEUKjD1l5eM=' 'sha256-8seWm3lVZgoz7iiTVkXlqmYevGI0+RB9npk8ytheNqM=' 'sha256-tsZbsxPovG7GCtbCP0wZptLxatwDx2lUARsW1Qf2VnY=' 'sha256-qtorP4hIhhk4iLN+7ky4Ul21kQs0u6ORu9mpJvR6jCg=' 'sha256-NE5a/Nwvq6zpH2FAYXPl1WkoftmDyOH7pkJ1jv6BlLs='; style-src 'unsafe-inline'; img-src 'self' blob: data:; media-src blob:; connect-src https://u2mnrv3unj.execute-api.us-east-1.amazonaws.com wss://6yx4yplcbl.execute-api.us-east-1.amazonaws.com https://cipherpost-files-677647025792.s3.us-east-1.amazonaws.com; manifest-src 'self'; form-action 'none'; base-uri 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0E1117">
@@ -55,11 +55,24 @@ button.icon{width:auto;min-width:44px;min-height:44px;margin:0;padding:6px 10px;
 .bubble .meta{font-size:11px;color:var(--muted);margin-top:3px} .bubble.out .meta{color:var(--outMeta)}
 .bubble .fname{font-weight:700} .bubble .thumb img{max-width:240px;max-height:240px;border-radius:10px;display:block;margin-bottom:6px}
 .bubble:has(.fname){cursor:pointer}
+.bubble:has(.voice){cursor:pointer;min-width:220px}
+.voice{display:flex;align-items:center;gap:10px}
+.voice-btn{width:36px;height:36px;min-width:36px;margin:0;padding:0;border-radius:50%;border:0;background:var(--accent);color:var(--onAccent);font-size:13px;line-height:36px;cursor:pointer}
+.bubble.out .voice-btn{background:var(--accent);color:var(--onAccent)}
+.voice-track{flex:1;height:4px;border-radius:2px;background:rgba(127,127,127,.35);overflow:hidden}
+.voice-fill{height:100%;background:currentColor;opacity:.8}
+.voice-time{font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rec-bar{flex:1;display:flex;align-items:center;gap:10px;min-height:48px;padding:0 12px;border-radius:12px;background:var(--card2);font-weight:600}
+.rec-dot{width:10px;height:10px;border-radius:50%;background:var(--danger);animation:recpulse 1.2s ease-in-out infinite}
+.rec-time{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:400}
+.composer .rec-cancel{width:auto;margin:0;padding:12px 10px}
+@keyframes recpulse{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.rec-dot{animation:none}}
 .composer{display:flex;gap:6px;align-items:flex-end;padding:8px 10px calc(10px + env(safe-area-inset-bottom));background:var(--card);position:sticky;bottom:0}
 .composer textarea{margin:0;min-height:48px;max-height:180px;resize:vertical} .composer .send{width:auto;margin:0;padding:12px 18px} .composer .icon{margin-bottom:2px}
 .notice-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:var(--card2);padding:8px 12px;font-size:14px}
 .notice-bar button{width:auto;min-height:36px;margin:0;padding:6px 12px;font-size:14px}
-.scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;z-index:10}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;z-index:25}
 .sheet{background:var(--card);width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:20px 18px calc(16px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto}
 @media (min-width:700px){.scrim{align-items:center}.sheet{border-radius:18px}}
 .sheet-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px} .sheet-buttons button{flex:1;min-width:120px}
@@ -129,6 +142,39 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
 .legend{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--muted);margin-top:4px}
 .key{width:12px;height:12px;border-radius:3px;display:inline-block;margin-left:10px}.key.sent{background:var(--accent)}.key.got{background:var(--got)}
 .pad{padding:24px 8px}
+/* ---------- Android layout: header · content · bottom tabs ---------- */
+.phone{min-height:100vh;display:flex;flex-direction:column;padding-bottom:calc(68px + env(safe-area-inset-bottom))}
+.p-head{position:sticky;top:0;z-index:4;display:flex;align-items:center;gap:12px;padding:10px 12px 10px 16px;background:var(--card);border-bottom:1px solid var(--line)}
+.p-head h1{flex:1;text-align:left;margin:0;font-size:22px}
+.p-head button.icon{color:var(--muted)}
+.p-offline{margin:8px 12px 0}
+.p-body{flex:1;padding:8px 12px 24px}
+.p-body .page{padding:8px 4px}
+.p-search{max-width:none;margin:6px 0 8px;padding:0 12px}
+.p-body .list{padding:4px 0 16px;overflow:visible}
+.p-body .tabs{margin-bottom:4px}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;justify-content:space-around;background:var(--card);border-top:1px solid var(--line);padding:4px 4px calc(4px + env(safe-area-inset-bottom))}
+.tab-btn{position:relative;flex:1;max-width:120px;min-height:56px;margin:0;padding:4px 2px;flex-direction:column;gap:2px;background:transparent;color:var(--muted);font-size:12px;font-weight:600;border-radius:12px}
+.tab-btn.active{color:var(--accent)}
+.tab-btn.active .ico{background:var(--sel);border-radius:14px;padding:3px 14px;box-sizing:content-box}
+.tab-btn .rail-badge{top:0;right:calc(50% - 26px)}
+.fab{position:fixed;right:18px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:5;width:58px;height:58px;min-height:58px;border-radius:18px;padding:0;margin:0;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.p-empty{text-align:center;display:flex;flex-direction:column;align-items:center;padding:40px 16px}
+.p-empty h2{margin:14px 0 4px}
+.p-profile{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:28px}
+.p-profile h2{margin:12px 0 2px}
+.p-profile .facts{grid-template-columns:1fr 1fr}
+.bar .avatar{width:36px;height:36px;font-size:13px}
+.bar button.icon{color:var(--muted)}
+.muted-sub{color:var(--muted)!important}
+.action-sheet{padding-top:8px}
+.action-sheet h2{font-size:16px;color:var(--muted);margin:6px 4px 8px}
+.grabber{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 6px}
+button.action{justify-content:flex-start;gap:14px;background:none;font-weight:500;margin-top:2px;color:var(--text)}
+button.action.danger-text{color:var(--danger)}
+button.action.cancel{justify-content:center;background:var(--card2);margin-top:10px;font-weight:700}
+.ico-gap{width:20px;display:inline-block}
+body:has(.tabbar) .toast{bottom:calc(158px + env(safe-area-inset-bottom))}
 </style>
 </head>
 <body>
@@ -842,12 +888,19 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
       if (file.bytes.length > MAX_FILE) throw new Error('Files can be up to 15 MB');
       const m = { id: newId(), out: true, ts: this.now(), text: String(caption || ''), status: 'sending',
                   file: { name: String(file.name || 'file').slice(0, 120), mime: file.mime || 'application/octet-stream', size: file.bytes.length, state: 'ready' } };
+      if (file.dur > 0) m.file.dur = Math.min(3600, Math.round(file.dur));   // voice message length in seconds
       c.msgs.push(m); c.last = m.ts;
       await this.store.putBlob('f:' + m.id, file.bytes);
-      await this.queueFile(c, m, { name: m.file.name, mime: m.file.mime, size: m.file.size, cap: m.text });
-      this.audit('file_sent', `To ${this.label(c)}, ${m.file.mime}, ${m.file.size} bytes, ref ${m.id.slice(0, 8)}`);
+      await this.queueFile(c, m, this.fileMeta(m));
+      this.audit(m.file.dur ? 'voice_sent' : 'file_sent', `To ${this.label(c)}, ${m.file.mime}, ${m.file.size} bytes, ref ${m.id.slice(0, 8)}`);
       await this.save(); this.changed(); this.flush();
       return { msg: m, smsNotice: this.smsNoticeDue(c) };
+    }
+
+    fileMeta(m) {
+      const meta = { name: m.file.name, mime: m.file.mime, size: m.file.size, cap: m.text };
+      if (m.file.dur) meta.dur = m.file.dur;
+      return meta;
     }
 
     /** Files are uploaded when the outbox is flushed (so a failed upload is retried). */
@@ -901,7 +954,7 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
       const m = c.msgs.find(x => x.id === e.upload.msgId);
       const meta = e.upload.meta;
       e.body = await CP2.seal({ t: 'file', id: e.upload.msgId, ts: m ? m.ts : this.now(), name: meta.name, mime: meta.mime,
-                                size: meta.size, cap: meta.cap, url, key: enc.key, sha: enc.sha }, this.s.me, c);
+                                size: meta.size, cap: meta.cap, dur: meta.dur || undefined, url, key: enc.key, sha: enc.sha }, this.s.me, c);
     }
 
     dropEntry(e, status) {
@@ -980,12 +1033,13 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
           if (!m) {
             m = { id: o.id, out: false, ts: o.ts, rx: this.now(), text: String(o.cap || ''),
                   file: { name: String(o.name || 'file'), mime: String(o.mime || 'application/octet-stream'), size: o.size | 0 } };
+            if (o.dur > 0 && /^audio\//.test(m.file.mime)) m.file.dur = Math.min(3600, Math.round(o.dur));
             c.msgs.push(m); c.last = this.now(); c.unread = (c.unread || 0) + 1;
           }
           Object.assign(m.file, { url: o.url, key: o.key, sha: o.sha, state: 'downloading' });
           await this.fetchFile(c, m);
           if (!m.file || m.file.state === 'ready') ackLater(c.id, o.id);
-          if (isNew) this.audit(m.file ? 'file_received' : 'message_received', `From ${this.label(c)}, ${o.mime}, ${o.size} bytes, ref ${o.id.slice(0, 8)}`);
+          if (isNew) this.audit(!m.file ? 'message_received' : m.file.dur ? 'voice_received' : 'file_received', `From ${this.label(c)}, ${o.mime}, ${o.size} bytes, ref ${o.id.slice(0, 8)}`);
           return isNew ? 1 : 0;
         }
         case 'ack': {
@@ -999,7 +1053,7 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
           const m = c.msgs.find(x => x.id === o.id && x.out && (x.file || x.long));
           if (!m) return 0;
           const meta = m.long ? { name: 'message.txt', mime: TEXT_MIME, size: CP2.utf8(m.text).length, cap: '' }
-                              : { name: m.file.name, mime: m.file.mime, size: m.file.size, cap: m.text };
+                              : this.fileMeta(m);
           const e = this.s.outbox.find(x => x.to === c.id && x.ack === m.id);
           if (e) Object.assign(e, { upload: { msgId: m.id, meta }, body: null, sent: 0 });   // upload again now
           else await this.queueFile(c, m, meta);
@@ -1189,6 +1243,8 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
         if (mime === 'application/pdf') return native('viewPdf', name, CP2.b64e(bytes));
         return null; // images and text are shown inside the app
       },
+      systemDark: () => native('systemDark'),
+      setBars: dark => native('setBars', !!dark),
       setInbox: (relay, topic) => native('setInbox', relay, topic),
       clearInbox: () => native('setInbox', '', ''),
       version: () => native('version'),
@@ -1222,7 +1278,7 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
         setTimeout(() => URL.revokeObjectURL(url), 120000);
         return true;
       },
-      setInbox: async () => {}, clearInbox: async () => {}, version: async () => '2.0',
+      setInbox: async () => {}, clearInbox: async () => {}, version: async () => '2.1',
       storageName: 'cipherpost2',
     };
   }
@@ -1262,6 +1318,7 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
   const P = CP2.platform();
   const STAFF = P.role === 'staff';
   const DESK = P.kind === 'desktop';   // Windows app: three-pane layout (see desk section)
+  const PHONE = P.kind === 'android';  // Android app: tab bar layout (see phone section)
   const app = D.getElementById('app');
   const relay = new CP2.Relay();
   const store = new CP2.Store(new CP2.IDBBackend(P.storageName), P.device);
@@ -1300,7 +1357,10 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
   function blobUrl(bytes, mime) { const u = URL.createObjectURL(new Blob([bytes], { type: mime })); blobUrls.add(u); return u; }
   const fmtTime = ts => { const d = new Date(ts), n = new Date(); return d.toDateString() === n.toDateString() ? d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : d.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); };
   const fmtSize = b => b < 1024 ? b + ' B' : b < 1048576 ? Math.round(b / 1024) + ' KB' : (b / 1048576).toFixed(1) + ' MB';
-  const fileIcon = m => !m ? '📎' : m.startsWith('image/') ? '🖼️' : m === 'application/pdf' ? '📄' : m.startsWith('text/') ? '📝' : '📎';
+  const fileIcon = m => !m ? '📎' : m.startsWith('image/') ? '🖼️' : m.startsWith('audio/') ? '🎤' : m === 'application/pdf' ? '📄' : m.startsWith('text/') ? '📝' : '📎';
+  const fmtDur = sec => { sec = Math.max(0, Math.round(sec || 0)); return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0'); };
+  const isVoice = m => !!(m && m.file && m.file.mime.startsWith('audio/'));
+  const fileLabel = f => f.dur ? `🎤 Voice message (${fmtDur(f.dur)})` : `${fileIcon(f.mime)} ${f.name}`;
   const firstName = n => String(n || '').split(' ')[0];
 
   function modal(title, body, buttons) {
@@ -1345,7 +1405,15 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
   }
   G.CPApp = {
     openLink: text => { takeLinkText(text); route(); },
-    back: () => { if (D.querySelector('.scrim')) { D.querySelector('.scrim').remove(); return true; } if (E.isUnlocked() && view.name !== 'home') { go({ name: 'home' }); return true; } return false; },
+    back: () => {
+      if (D.querySelector('.scrim')) { D.querySelector('.scrim').remove(); return true; }
+      if (!E.isUnlocked() || view.name === 'home') return false;
+      if (view.name === 'contacts' && view.from === 'chat' && view.cid) go({ name: 'chat', cid: view.cid });
+      else if (view.name === 'contacts' && (view.cid || view.inv)) go({ name: 'contacts' });
+      else if (view.name === 'help' || view.name === 'audit') go({ name: 'settings' });
+      else go({ name: 'home' });
+      return true;
+    },
   };
   if (P.kind === 'web') {
     const fromHash = () => {
@@ -1375,6 +1443,12 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
   }
   function render(soft) {
     if (!E.isUnlocked()) return;
+    if (PHONE) {
+      if (view.name === 'chat' && !E.contact(view.cid)) view = { name: 'home' };
+      if (view.name === 'contacts') return phoneContacts(soft);
+      if (view.name === 'activity') return soft ? null : deskActivity();
+      if (view.name === 'home') return phoneMessages(soft);
+    }
     if (DESK) {
       if (view.name === 'contacts') return deskContacts(soft);
       if (view.name === 'activity') return soft ? updateBadge() : deskActivity();
@@ -1572,6 +1646,7 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
     timers.forEach(clearInterval); timers = [];
     unsubscribe(); unsubscribe = () => {};
     bioTried = false;
+    stopVoice(true);
     freeBlobs();
     D.querySelectorAll('.scrim').forEach(s => s.remove());
     await E.lock(reason);
@@ -1694,7 +1769,7 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
     if (!cs.length) parts.push(h('div', { class: 'card muted' }, STAFF ? 'No conversations yet. Invite a patient or colleague — they appear here as soon as they connect.' : 'No one yet. Open the invite link your care team sent you.'));
     for (const c of cs) {
       const last = c.msgs[c.msgs.length - 1];
-      const prev = last ? (last.out ? 'You: ' : '') + (last.file ? `${fileIcon(last.file.mime)} ${last.file.name}` : last.text.replace(/\s+/g, ' ')) : (c.joined ? 'Connected — say hello' : 'No messages yet');
+      const prev = last ? (last.out ? 'You: ' : '') + (last.file ? fileLabel(last.file) : last.text.replace(/\s+/g, ' ')) : (c.joined ? 'Connected — say hello' : 'No messages yet');
       parts.push(h('button', { class: 'item' + (c.unread ? ' unread' : ''), onclick: () => go({ name: 'chat', cid: c.id }) },
         h('div', { class: 'item-top' }, h('span', { class: 'item-name' }, c.name), STAFF ? h('span', { class: 'tag' }, c.role === 'patient' ? 'patient' : 'colleague') : null,
           c.unread ? h('span', { class: 'badge' }, String(c.unread)) : null),
@@ -1742,13 +1817,24 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
       } catch (e) { alertBox('Couldn\'t send file', plain(e)); }
     });
     const attach = iconBtn('Attach a file', () => fileIn.click(), '📎');
-    return { thread: threadEl, composer: h('div', { class: 'composer' }, attach, input, send, fileIn) };
+    const comp = h('div', { class: 'composer' }, attach, input, send, fileIn);
+    if (canRecord()) attach.after(iconBtn('Record a voice message', () => recordVoice(comp, c), '🎤'));
+    if (player && player.cid !== cid) stopVoice(true);
+    return { thread: threadEl, composer: comp };
   }
   function screenChat(cid) {
     const c = E.contact(cid);
     const back = iconBtn('Back', () => go({ name: 'home' }), '‹');
     const info = iconBtn('Contact details', () => contactInfo(cid), 'ⓘ');
     const parts = chatParts(cid);
+    if (PHONE) {
+      const more = h('button', { class: 'icon', 'aria-label': 'More', title: 'More', onclick: () => conversationMenu(E.contact(cid)) }, icon('more'));
+      const det = h('button', { class: 'icon', 'aria-label': 'Contact details', title: 'Contact details', onclick: () => go({ name: 'contacts', cid, from: 'chat' }) }, icon('info'));
+      show(h('header', { class: 'bar' }, back, avatar(c.name, c.id),
+          h('div', { class: 'bar-title' }, h('div', { class: 't1' }, c.name), h('div', { class: 't2 muted-sub' }, c.role === 'patient' ? 'Patient' : 'Colleague')), det, more),
+        h('main', { class: 'chat' }, parts.thread), parts.composer);
+      return renderThread(true);
+    }
     show(header(c.name, c.role === 'patient' ? 'Patient' : STAFF ? 'Colleague' : 'Care team', back, info),
       h('main', { class: 'chat' }, parts.thread), parts.composer);
     renderThread(true);
@@ -1790,7 +1876,10 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
   const STATUS = { sending: 'Sending…', sent: 'Sent ✓', delivered: 'Delivered ✓✓', failed: 'Not delivered ⚠' };
   function bubble(c, m) {
     const kids = [];
-    if (m.file) {
+    if (isVoice(m)) {
+      kids.push(voiceEl(c, m));
+      if (m.text) kids.push(h('div', { class: 'text' }, m.text));
+    } else if (m.file) {
       const st = m.file.state;
       const thumb = h('div', { class: 'thumb' });
       if (st === 'ready' && m.file.mime.startsWith('image/') && m.file.size < 8 * 1048576) {
@@ -1803,7 +1892,7 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
     } else kids.push(h('div', { class: 'text' }, m.text));
     kids.push(h('div', { class: 'meta' }, fmtTime(m.out ? m.ts : (m.rx || m.ts)), m.out ? ' · ' + (STATUS[m.status] || '') : ''));
     const b = h('div', { class: 'bubble ' + (m.out ? 'out' : 'in') + (m.status === 'failed' ? ' failed' : ''), tabindex: '0',
-                          onclick: () => m.file ? openFile(c, m) : null,
+                          onclick: () => isVoice(m) ? playVoice(c, m) : m.file ? openFile(c, m) : null,
                           oncontextmenu: e => { e.preventDefault(); messageActions(c, m); } }, kids);
     let t; b.addEventListener('touchstart', () => { t = setTimeout(() => messageActions(c, m), 600); }, { passive: true });
     b.addEventListener('touchend', () => clearTimeout(t));
@@ -1824,6 +1913,121 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
       [{ label: 'Delete contact', value: 'del', danger: true }, { label: 'Close', value: null, primary: true }]);
     if (v === 'del' && await confirmBox(`Delete ${c.name}?`, 'Removes them and your conversation from this device. You would need to invite them again.', 'Delete', true)) {
       await E.deleteContact(cid); go({ name: 'home' });
+    }
+  }
+
+  // ============================================================ voice messages
+  // Recorded in the app and sent like any other file (encrypted on this device first). Played from memory;
+  // nothing is written to disk. Up to 5 minutes, about 1 MB.
+  const VOICE_MAX = 300;
+  let player = null;        // { cid, id, audio, url } — the voice message playing now
+  const canRecord = () => !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && G.MediaRecorder);
+  function voiceType() {
+    for (const t of ['audio/webm;codecs=opus', 'audio/ogg;codecs=opus', 'audio/mp4', 'audio/webm']) {
+      try { if (G.MediaRecorder.isTypeSupported(t)) return t; } catch (e) { /* try the next one */ }
+    }
+    return '';
+  }
+  function micHelp() {
+    return P.kind === 'android' ? 'Allow CipherPost to use the microphone: Android Settings → Apps → CipherPost → Permissions → Microphone.'
+      : P.kind === 'desktop' ? 'Allow apps to use the microphone: Windows Settings → Privacy & security → Microphone.'
+      : 'Allow this page to use the microphone: tap the icon beside the web address and turn on Microphone, then try again.';
+  }
+
+  async function recordVoice(comp, c) {
+    stopVoice();
+    let stream;
+    try { stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
+    catch (e) {
+      return alertBox('Microphone not available', e && (e.name === 'NotAllowedError' || e.name === 'SecurityError') ? micHelp() : 'No microphone was found on this device.');
+    }
+    const type = voiceType();
+    let rec;
+    try { rec = new G.MediaRecorder(stream, Object.assign({ audioBitsPerSecond: 32000 }, type ? { mimeType: type } : {})); }
+    catch (e) { stream.getTracks().forEach(t => t.stop()); return alertBox('Can\'t record', 'This device can\'t record voice messages.'); }
+    const chunks = [], saved = [...comp.childNodes], t0 = Date.now();
+    let done = false;
+    rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+    const clock = h('span', { class: 'rec-time' }, '0:00');
+    const tick = setInterval(() => {
+      const sec = (Date.now() - t0) / 1000;
+      clock.textContent = fmtDur(sec);
+      lastActive = Date.now();                                  // don't lock in the middle of a recording
+      if (!comp.isConnected) finish(false);                     // left the conversation
+      else if (sec >= VOICE_MAX) { toast('Voice messages can be up to 5 minutes'); finish(true); }
+    }, 250);
+    async function finish(sendIt) {
+      if (done) return; done = true;
+      clearInterval(tick);
+      const dur = (Date.now() - t0) / 1000;
+      const stopped = new Promise(r => { rec.onstop = r; setTimeout(r, 3000); });
+      try { rec.stop(); } catch (e) { /* already stopped */ }
+      await stopped;
+      stream.getTracks().forEach(t => t.stop());
+      if (comp.isConnected) comp.replaceChildren(...saved);
+      if (!sendIt) return;
+      if (dur < 1 || !chunks.length) return toast('Too short to send — hold on a moment longer');
+      const blob = new Blob(chunks, { type: rec.mimeType || type || 'audio/webm' });
+      const mime = (blob.type || 'audio/webm').split(';')[0];
+      const ext = mime.includes('mp4') ? 'm4a' : mime.includes('ogg') ? 'ogg' : 'webm';
+      try {
+        const r = await E.sendFile(c.id, { name: `Voice message.${ext}`, mime, bytes: new Uint8Array(await blob.arrayBuffer()), dur }, '');
+        await afterSend(c, r);
+      } catch (e) { alertBox('Couldn\'t send voice message', plain(e)); }
+    }
+    rec.start(1000);
+    comp.replaceChildren(
+      h('div', { class: 'rec-bar', role: 'status', 'aria-live': 'polite' }, h('span', { class: 'rec-dot', 'aria-hidden': 'true' }), 'Recording', clock),
+      h('button', { class: 'link rec-cancel', onclick: () => finish(false) }, 'Cancel'),
+      h('button', { class: 'primary send', onclick: () => finish(true) }, 'Send'));
+  }
+
+  function voiceEl(c, m) {
+    const st = m.file.state, mine = player && player.id === m.id;
+    const playing = mine && !player.audio.paused;
+    const total = m.file.dur || (mine && isFinite(player.audio.duration) ? player.audio.duration : 0);
+    const pos = mine ? player.audio.currentTime : 0;
+    const pct = total ? Math.min(100, (pos / total) * 100) : 0;
+    const label = st === 'ready' ? (mine ? `${fmtDur(pos)} / ${fmtDur(total)}` : total ? fmtDur(total) : 'Voice message')
+      : st === 'requested' ? 'asking for it again…' : st === 'failed' ? 'download failed — tap to retry' : 'downloading…';
+    return h('div', { class: 'voice', 'data-voice': m.id },
+      h('button', { class: 'voice-btn', 'aria-label': playing ? 'Pause voice message' : 'Play voice message',
+                    onclick: e => { e.stopPropagation(); playVoice(c, m); } }, playing ? '❚❚' : '▶'),
+      h('div', { class: 'voice-track', 'aria-hidden': 'true' }, h('div', { class: 'voice-fill', style: `width:${pct}%` })),
+      h('span', { class: 'voice-time' }, label));
+  }
+  function refreshVoice(id) {
+    const c = E.contact(chatCid), m = c && c.msgs.find(x => x.id === id);
+    const el = threadEl && threadEl.querySelector(`[data-voice="${id}"]`);
+    if (el && m) el.replaceWith(voiceEl(c, m));
+  }
+  function stopVoice(quiet) {
+    if (!player) return;
+    const id = player.id;
+    try { player.audio.pause(); } catch (e) { /* already stopped */ }
+    URL.revokeObjectURL(player.url);
+    player = null;
+    if (!quiet) refreshVoice(id);
+  }
+  async function playVoice(c, m) {
+    if (player && player.id === m.id) {
+      if (player.audio.paused) player.audio.play().catch(() => {}); else player.audio.pause();
+      return;
+    }
+    stopVoice();
+    if (m.file.state !== 'ready') return openFile(c, m);        // retries or says it's still downloading
+    let bytes;
+    try { bytes = await E.fileBytes(c.id, m.id, 'view'); } catch (e) { return alertBox('Can\'t play', plain(e)); }
+    const url = URL.createObjectURL(new Blob([bytes], { type: m.file.mime }));
+    const audio = new G.Audio(url);
+    const me = player = { cid: c.id, id: m.id, audio, url };
+    const upd = () => { if (player === me) refreshVoice(m.id); };
+    ['play', 'pause', 'timeupdate', 'loadedmetadata'].forEach(ev => audio.addEventListener(ev, upd));
+    audio.addEventListener('ended', () => { if (player === me) stopVoice(); });
+    try { await audio.play(); }
+    catch (e) {
+      if (player === me) stopVoice();
+      alertBox('Can\'t play this recording', 'This device can\'t play this recording\'s format. Ask the sender to type the message instead, or try on another device.');
     }
   }
 
@@ -1949,7 +2153,7 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
   }
 
   function conversationMenu(c, anchor, at) {
-    popMenu([
+    (PHONE ? items => actionSheet(c.name, items) : items => popMenu(items, anchor, null, at))([
       c.unread ? { label: 'Mark as read', icon: 'messages', onclick: () => { E.markRead(c.id); scheduleRender(); } }
                : { label: 'Mark as unread', icon: 'messages', onclick: () => { E.markUnread(c.id); if (view.cid === c.id) go({ name: 'home' }); else scheduleRender(); } },
       { label: c.pinned ? 'Unpin' : 'Pin to top', icon: 'pin', onclick: () => { E.setFlag(c.id, 'pinned', !c.pinned); scheduleRender(); } },
@@ -1958,7 +2162,7 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
       { label: 'Delete conversation', danger: true, onclick: async () => {
         if (await confirmBox(`Delete the conversation with ${c.name}?`, 'Removes all messages and files with them from this device. They stay in your contacts.', 'Delete', true)) { await E.clearConversation(c.id); render(); }
       } },
-    ], anchor, null, at);
+    ]);
   }
 
   // ---------------------------------------------------------------- messages
@@ -1998,7 +2202,7 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
     const cs = sorted(E.contacts().filter(matches).filter(c => filt !== 'unread' || c.unread));
     for (const c of cs) {
       const last = c.msgs[c.msgs.length - 1];
-      const prev = last ? (last.out ? 'You: ' : '') + (last.file ? `${fileIcon(last.file.mime)} ${last.file.name}` : last.text.replace(/\s+/g, ' ')) : (c.joined ? 'Connected — say hello' : 'No messages yet');
+      const prev = last ? (last.out ? 'You: ' : '') + (last.file ? fileLabel(last.file) : last.text.replace(/\s+/g, ' ')) : (c.joined ? 'Connected — say hello' : 'No messages yet');
       const sel = view.name === 'chat' && view.cid === c.id;
       items.push(h('button', { class: 'item conv' + (c.unread ? ' unread' : '') + (sel ? ' selected' : ''), role: 'listitem',
                                onclick: () => go({ name: 'chat', cid: c.id }),
@@ -2011,6 +2215,7 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
             last ? h('span', { class: 'time' }, fmtTime(last.rx || last.ts)) : null),
           h('div', { class: 'item-sub' }, h('span', { class: 'ellipsis' }, prev), c.unread ? h('span', { class: 'badge' }, String(c.unread)) : null),
           h('span', { class: 'tag' }, roleLabel(c)))));
+      hold(items[items.length - 1], () => conversationMenu(c));
     }
     const waiting = E.pendingInvites().filter(i => !q || i.name.toLowerCase().includes(q));
     if (waiting.length && filt === 'all') {
@@ -2076,7 +2281,7 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
                     oncontextmenu: e => { e.preventDefault(); conversationMenu(c, null, { x: e.clientX, y: e.clientY }); } },
         avatar(c.name, c.id), h('div', { class: 'conv-body' }, h('div', { class: 'item-top' }, h('span', { class: 'item-name' }, c.name)),
           h('div', { class: 'item-sub' }, h('span', { class: 'ellipsis' }, [c.phone, c.email].filter(Boolean).join(' · ') || (c.role === 'patient' ? 'Patient' : 'Colleague'))),
-          h('span', { class: 'tag' }, roleLabel(c)))))] : [];
+          h('span', { class: 'tag' }, roleLabel(c)))))].map((el, i) => { if (i) hold(el, () => conversationMenu(list[i - 1])); return el; }) : [];
     const inv = E.pendingInvites().filter(i => !q || i.name.toLowerCase().includes(q));
     const items = [...group('Patients', all.filter(c => c.role === 'patient')), ...group('Colleagues', all.filter(c => c.role !== 'patient'))];
     if (inv.length) {
@@ -2112,8 +2317,8 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
     const dur = ms => ms < 3600000 ? `${Math.max(1, Math.round(ms / 60000))} min` : ms < DAY ? `${(ms / 3600000).toFixed(1)} h` : `${(ms / DAY).toFixed(1)} days`;
     const card = (label, value, sub) => h('div', { class: 'stat' }, h('div', { class: 'stat-label' }, label), h('div', { class: 'stat-value' }, value), sub ? h('div', { class: 'stat-sub' }, sub) : null);
     const patients = E.contacts().filter(c => c.role === 'patient').length;
-    show(h('div', { class: 'page' },
-      h('div', { class: 'page-head' }, h('h2', null, 'Activity'), h('p', { class: 'muted' }, 'Your last 7 days, worked out on this computer from your own conversations.')),
+    const content = [
+      h('div', { class: 'page-head' }, DESK ? h('h2', null, 'Activity') : null, h('p', { class: 'muted' }, `Your last 7 days, worked out on this ${DESK ? 'computer' : 'phone'} from your own conversations.`)),
       h('div', { class: 'stats' },
         card('Messages sent', String(sum(sent)), 'last 7 days'),
         card('Messages received', String(sum(got)), 'last 7 days'),
@@ -2124,10 +2329,12 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
       h('div', { class: 'panel' }, h('h3', null, `Patients waiting for a reply (${waiting.length})`),
         waiting.length ? waiting.sort((a, b) => a.since - b.since).map(w => h('button', { class: 'item conv', onclick: () => go({ name: 'chat', cid: w.c.id }) },
           avatar(w.c.name, w.c.id), h('div', { class: 'conv-body' }, h('div', { class: 'item-top' }, h('span', { class: 'item-name' }, w.c.name), h('span', { class: 'time' }, `waiting ${dur(now - w.since)}`)))))
-          : h('p', { class: 'muted' }, 'Nobody is waiting — every patient message has a reply.'))));
+          : h('p', { class: 'muted' }, 'Nobody is waiting — every patient message has a reply.'))];
+    if (PHONE) return showTab('activity', 'Activity', h('div', { class: 'page' }, content));
+    show(h('div', { class: 'page' }, content));
   }
   function barChart(days, sent, got) {
-    const NS = 'http://www.w3.org/2000/svg', W = 640, H = 200, padL = 28, padB = 26, top = 12;
+    const NS = 'http://www.w3.org/2000/svg', W = PHONE ? 360 : 640, H = PHONE ? 180 : 200, padL = 28, padB = 26, top = 12;
     const max = Math.max(4, ...sent, ...got), step = (W - padL) / 7, bw = Math.min(18, step / 3.2);
     const svg = D.createElementNS(NS, 'svg');
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('class', 'chart'); svg.setAttribute('role', 'img');
@@ -2149,23 +2356,124 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
   // ---------------------------------------------------------------- appearance (Windows)
   const THEME_KEY = 'cp2-theme';
   function themeChoice() { try { return G.localStorage.getItem(THEME_KEY) || 'system'; } catch (e) { return 'system'; } }
+  let phoneDark = null;   // Android tells the page whether the phone is in dark mode
   function applyTheme() {
-    if (!DESK) return;
+    if (!DESK && !PHONE) return;
     const ch = themeChoice();
-    const dark = ch === 'dark' || (ch === 'system' && G.matchMedia && G.matchMedia('(prefers-color-scheme: dark)').matches);
+    const sysDark = PHONE && phoneDark !== null ? phoneDark : !!(G.matchMedia && G.matchMedia('(prefers-color-scheme: dark)').matches);
+    const dark = ch === 'dark' || (ch === 'system' && sysDark);
     D.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    if (PHONE && P.setBars) P.setBars(dark).catch(() => {});   // status and navigation bar colours
   }
   async function chooseTheme() {
     const cur = themeChoice();
-    const sel = h('select', { 'aria-label': 'Appearance' }, [['system', 'Follow Windows'], ['light', 'Light'], ['dark', 'Dark']].map(([v, l]) => h('option', { value: v, selected: v === cur ? 'selected' : null }, l)));
+    const sel = h('select', { 'aria-label': 'Appearance' }, [['system', DESK ? 'Follow Windows' : 'Follow phone setting'], ['light', 'Light'], ['dark', 'Dark']].map(([v, l]) => h('option', { value: v, selected: v === cur ? 'selected' : null }, l)));
     if (await modal('Appearance', sel, [{ label: 'Cancel', value: false }, { label: 'Save', value: true, primary: true }])) {
       try { G.localStorage.setItem(THEME_KEY, sel.value); } catch (e) { /* stays for this session */ }
       applyTheme(); render();
     }
   }
-  if (DESK) {
+  if (PHONE) {
+    G.CPApp.systemDark = v => { phoneDark = !!v; applyTheme(); };
+    if (P.systemDark) P.systemDark().then(v => G.CPApp.systemDark(v)).catch(() => {});
+  }
+  if (DESK || PHONE) {
     applyTheme();
     if (G.matchMedia) { const mq = G.matchMedia('(prefers-color-scheme: dark)'); (mq.addEventListener ? mq.addEventListener('change', applyTheme) : mq.addListener(applyTheme)); }
+  }
+
+  // ============================================================ Android layout (header · content · bottom tabs)
+  /** Press-and-hold on touch screens (opens the conversation menu). */
+  function hold(el, fn) {
+    if (!PHONE) return;
+    let t = null, held = false;
+    el.addEventListener('touchstart', () => { held = false; t = setTimeout(() => { held = true; fn(); }, 550); }, { passive: true });
+    const stop = () => clearTimeout(t);
+    el.addEventListener('touchend', stop); el.addEventListener('touchmove', stop, { passive: true }); el.addEventListener('touchcancel', stop);
+    el.addEventListener('click', e => { if (held) { e.stopImmediatePropagation(); e.preventDefault(); held = false; } }, true);
+    el.addEventListener('contextmenu', e => e.preventDefault());
+  }
+  /** Bottom sheet of actions (phone version of the right-click menu). */
+  function actionSheet(title, items) {
+    const wrap = h('div', { class: 'scrim', onclick: e => { if (e.target === wrap) wrap.remove(); } },
+      h('div', { class: 'sheet action-sheet', role: 'dialog', 'aria-label': title },
+        h('div', { class: 'grabber' }), h('h2', null, title),
+        items.filter(Boolean).map(it => h('button', { class: 'action' + (it.danger ? ' danger-text' : ''), onclick: () => { wrap.remove(); it.onclick(); } }, it.icon ? icon(it.icon, 20) : h('span', { class: 'ico-gap' }), it.label)),
+        h('button', { class: 'action cancel', onclick: () => wrap.remove() }, 'Cancel')));
+    D.body.append(wrap);
+  }
+  const newMenu = () => actionSheet('Invite someone', [
+    { label: 'Invite patient', icon: 'contacts', onclick: () => inviteDialog('patient') },
+    { label: 'Invite colleague', icon: 'contacts', onclick: () => inviteDialog('staff') },
+  ]);
+
+  /** Wraps a top-level screen: header with title, the content, and the bottom tab bar. */
+  function showTab(tab, title, ...content) {
+    const n = unreadTotal();
+    railBadge = h('span', { class: 'rail-badge' + (n ? '' : ' hidden') }, String(n));
+    const tabBtn = (key, label, ic, extra) => h('button', { class: 'tab-btn' + (tab === key ? ' active' : ''), 'aria-label': key === 'settings' ? 'Settings and help' : label,
+      onclick: () => go({ name: key === 'messages' ? 'home' : key }) }, icon(ic, 24), h('span', null, label), extra || null);
+    const fab = tab === 'messages' || tab === 'contacts' ? h('button', { class: 'fab primary', 'aria-label': 'New', title: 'Invite someone', onclick: newMenu }, icon('plus', 26)) : null;
+    show(h('div', { class: 'phone' },
+      h('header', { class: 'p-head' }, avatar(E.me.name, E.myId), h('h1', null, title),
+        h('button', { class: 'icon', 'aria-label': 'Lock', title: 'Lock', onclick: () => lockNow('Locked by user') }, icon('lock', 22))),
+      offline ? h('p', { class: 'banner p-offline' }, 'You\'re offline — messages will send when you\'re back online.') : null,
+      h('div', { class: 'p-body' }, content),
+      fab,
+      h('nav', { class: 'tabbar', 'aria-label': 'Sections' },
+        tabBtn('messages', 'Messages', 'messages', railBadge), tabBtn('contacts', 'Contacts', 'contacts'),
+        tabBtn('activity', 'Activity', 'activity'), tabBtn('settings', 'Settings', 'settings'))));
+  }
+  function phoneSearch(onInput) {
+    const s = h('input', { type: 'search', class: 'search', placeholder: 'Search', 'aria-label': 'Search', value: q });
+    s.addEventListener('input', () => { q = s.value.trim().toLowerCase(); onInput(); });
+    return h('label', { class: 'search-wrap p-search' }, icon('search', 18), s);
+  }
+
+  function phoneMessages(soft) {
+    if (soft && listEl && D.contains(listEl)) { fillMessageList(); updateBadge(); return; }
+    listEl = h('div', { class: 'list', role: 'list' });
+    const none = !E.contacts().length && !E.pendingInvites().length;
+    const tabs = h('div', { class: 'tabs', role: 'tablist' },
+      [['all', 'All'], ['unread', 'Unread']].map(([k, l]) => h('button', { role: 'tab', class: filt === k ? 'on' : '', 'aria-selected': String(filt === k), onclick: () => { filt = k; render(); } }, l)));
+    showTab('messages', 'Messages',
+      none ? null : phoneSearch(fillMessageList), none ? null : tabs,
+      none ? h('div', { class: 'p-empty' }, h('div', { class: 'empty-art' }, icon('messages', 40)), h('h2', null, 'Start your first conversation'),
+        h('p', { class: 'muted' }, 'Invite a patient or colleague. They appear here as soon as they connect.'),
+        h('button', { class: 'primary', onclick: () => inviteDialog('patient') }, 'Invite patient'), h('button', { onclick: () => inviteDialog('staff') }, 'Invite colleague')) : listEl);
+    if (!none) fillMessageList();
+  }
+
+  function phoneContacts(soft) {
+    const c = view.cid ? E.contact(view.cid) : null;
+    const inv = view.inv ? E.pendingInvites().find(i => i.id === view.inv) : null;
+    if (!c && !inv) {
+      if (soft && contactListEl && D.contains(contactListEl)) { fillContactList(); updateBadge(); return; }
+      contactListEl = h('div', { class: 'list', role: 'list' });
+      showTab('contacts', 'Contacts', phoneSearch(fillContactList), contactListEl);
+      return fillContactList();
+    }
+    if (soft) return;
+    const back = iconBtn('Back', () => (view.from === 'chat' && c ? go({ name: 'chat', cid: c.id }) : go({ name: 'contacts' })), '‹');
+    let body;
+    if (c) {
+      const sent = c.msgs.filter(m => m.out).length, got = c.msgs.length - sent, last = c.msgs[c.msgs.length - 1];
+      body = [avatar(c.name, c.id, 'lg'), h('h2', null, c.name), h('p', { class: 'muted' }, c.role === 'patient' ? 'Patient' : 'Colleague'),
+        h('button', { class: 'primary', onclick: () => go({ name: 'chat', cid: c.id }) }, 'Message'),
+        h('div', { class: 'facts' }, fact('Mobile', c.phone || '—'), fact('Email', c.email || '—'), fact('Connected', fmtTime(c.joined || c.created)),
+          fact('Messages', `${sent} sent · ${got} received`), fact('Last activity', last ? fmtTime(last.rx || last.ts) : '—'), fact('Notifications', c.muted ? 'Muted' : 'On')),
+        h('button', { onclick: () => conversationMenu(c) }, 'More options'),
+        h('button', { class: 'link danger-text', onclick: async () => {
+          if (await confirmBox(`Delete ${c.name}?`, 'Removes them and your conversation from this device. You would need to invite them again.', 'Delete', true)) { await E.deleteContact(c.id); go({ name: 'contacts' }); }
+        } }, 'Delete contact')];
+    } else {
+      body = [avatar(inv.name, inv.id, 'lg'), h('h2', null, inv.name), h('p', { class: 'muted' }, `Invited ${inv.type === 'patient' ? 'patient' : 'colleague'} · waiting to connect`),
+        h('div', { class: 'facts' }, fact('Mobile', inv.phone || '—'), fact('Email', inv.email || '—'), fact('Invited', fmtTime(inv.created)), fact('Invite expires', fmtTime(inv.created + CP2.INVITE_LIFE))),
+        h('p', { class: 'muted small' }, 'They appear in your messages as soon as they open the invite and connect. Each invite works once.'),
+        h('button', { class: 'primary', onclick: () => deliverInvite(inv) }, 'Send again'),
+        h('button', { class: 'danger', onclick: async () => { await E.cancelInvite(inv.id); go({ name: 'contacts' }); } }, 'Cancel invite')];
+    }
+    show(header(c ? 'Contact' : 'Invite', null, back), h('main', { class: 'p-profile' }, body));
   }
 
   // ============================================================ settings, audit, help, about
@@ -2203,7 +2511,7 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
       if (P.kind === 'android') rows.push(row('Text patients a notice when you message them', s.smsNotices ? 'On — no message content is included' : 'Off', async () => { await E.setSetting('smsNotices', !s.smsNotices, 'SMS notices'); render(); }));
       rows.push(row('Audit log', 'Every access, message and change, tamper-evident', () => go({ name: 'audit' })));
     }
-    if (DESK) { rows.push(h('h3', null, 'Display')); rows.push(row('Appearance', { system: 'Follow Windows', light: 'Light', dark: 'Dark' }[themeChoice()], chooseTheme)); }
+    if (DESK || PHONE) { rows.push(h('h3', null, 'Display')); rows.push(row('Appearance', { system: DESK ? 'Follow Windows' : 'Follow phone setting', light: 'Light', dark: 'Dark' }[themeChoice()], chooseTheme)); }
     rows.push(h('h3', null, 'Account'));
     rows.push(row('Change passcode', null, changePasscode));
     rows.push(row('Lock now', null, () => lockNow('Locked by user')));
@@ -2214,6 +2522,7 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
     rows.push(h('button', { class: 'danger', onclick: async () => {
       if (await confirmBox('Erase everything?', 'Permanently deletes your contacts and messages on this device. This cannot be undone.', 'Erase', true)) { await lockNow(null); await E.erase(); route(); }
     } }, 'Erase all CipherPost data on this device'));
+    if (PHONE) return showTab('settings', 'Settings', h('main', null, rows), footer());
     show(header('Settings', null, back), h('main', null, rows), footer());
   }
 
@@ -2249,11 +2558,13 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
     const back = iconBtn('Back', () => go({ name: 'settings' }), '‹');
     const sec = (t, ...p) => h('section', { class: 'card' }, h('h3', null, t), p.map(x => h('p', null, x)));
     const staff = [
+      PHONE ? sec('Finding your way', 'Messages, Contacts, Activity and Settings are along the bottom. Tap + to invite someone. Press and hold a conversation to mark it unread, pin it to the top, mute it or delete it. Search finds people and words in your messages.') : null,
       DESK ? sec('Finding your way', 'Messages, Contacts and Activity are on the left. Press + at the top right to invite someone. Right-click a conversation to mark it unread, pin it to the top, mute its notifications or delete it. The search box finds people and words in your messages.') : null,
-      sec('Inviting a patient', (DESK ? 'Press + and choose Invite patient' : 'Tap Invite patient') + ', enter their name and mobile number or email, and send. They tap the link, choose a passcode, and appear in your conversations by themselves. Patients install nothing.'),
+      sec('Inviting a patient', (DESK || PHONE ? 'Press + and choose Invite patient' : 'Tap Invite patient') + ', enter their name and mobile number or email, and send. They tap the link, choose a passcode, and appear in your conversations by themselves. Patients install nothing.'),
       sec('Inviting a colleague', 'Tap Invite colleague. They open the link on a phone or PC with CipherPost and tap Connect. Each invite works once and expires after 30 days; until then it shows under Waiting to connect.'),
       sec('Messages', 'Type and tap Send (Ctrl+Enter on a PC). Messages arrive by themselves. Sending… → Sent ✓ → Delivered ✓✓ once it has reached their device. If someone is offline, CipherPost keeps re-sending for up to 14 days.'),
       sec('Patients are notified', P.kind === 'android' ? 'When you message a patient who has a mobile number, the app texts them a short notice (no message content). Turn this off in Settings.' : 'After messaging a patient, CipherPost offers to let them know: "Text from my phone" shows a QR code — point your phone\'s camera at it and your texting app opens with the notice ready to send. Email and Copy work too. The notice never contains the message.'),
+      sec('Voice messages', 'Tap 🎤 to record, then Send (or Cancel). Up to 5 minutes. Voice messages are protected exactly like typed ones; tap ▶ to play one.'),
       sec('Files', 'Tap 📎 to send a photo, PDF or other file up to 15 MB; anything in the message box goes as its caption. Received files stay safely inside CipherPost. Saving a copy outside CipherPost is recorded in the audit log.'),
       P.kind === 'desktop' ? sec('Staying in the tray', 'Closing the window keeps CipherPost running in the tray so it can tell you about new messages. To quit, right-click the tray icon and choose Quit CipherPost.') : null,
       sec('Security', 'CipherPost locks after a few minutes without use. After 5 wrong passcodes you must wait; after 10 everything is erased (can be turned off). Settings has the audit log, retention, and fingerprint/face unlock on phones.'),
@@ -2267,7 +2578,7 @@ button.round{width:40px;height:40px;min-height:40px;border-radius:50%;padding:0;
   }
 
   async function about() {
-    const v = await P.version().catch(() => '2.0');
+    const v = await P.version().catch(() => '2.1');
     await modal('About CipherPost', h('div', null,
       h('p', null, `CipherPost ${v}${P.kind === 'desktop' ? ' for Windows' : P.kind === 'android' ? ' for Android' : ''}`),
       h('p', null, 'Private messages and files between care teams and patients. Only the people in a conversation can read it.'),
