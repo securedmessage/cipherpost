@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-6X0Qf9ZzkUcwyC1O3E/TbzPjl3HvJwFiPkmmgz/FetQ=' 'sha256-6Mgt4JPsExEeNfs+2L0oTiBp09BiGMlYlEUKjD1l5eM=' 'sha256-FiCJYmqqQ+JGIZqmrqX8gET9oqhjwT5uTe06nI93S1o=' 'sha256-kIPHIeGCA3FEJa/YCbZSy520jKXYRY9TBN8RhuV5E4I=' 'sha256-Xa0vDZ7VlTAo0gvq48yiqNDJnUAAQiiW7mtkrKc0k8M=' 'sha256-yPzn69LmELfg2fymmMz9WdiLcFwisorCEIFfQPDcivE='; style-src 'unsafe-inline'; img-src 'self' blob: data:; connect-src https://ntfy.sh; manifest-src 'self'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-6X0Qf9ZzkUcwyC1O3E/TbzPjl3HvJwFiPkmmgz/FetQ=' 'sha256-6Mgt4JPsExEeNfs+2L0oTiBp09BiGMlYlEUKjD1l5eM=' 'sha256-8seWm3lVZgoz7iiTVkXlqmYevGI0+RB9npk8ytheNqM=' 'sha256-kIPHIeGCA3FEJa/YCbZSy520jKXYRY9TBN8RhuV5E4I=' 'sha256-99XbSRCwD6i4fS7hW+O18jPpKpX0cUOKQjt0kQPxnGk=' 'sha256-yPzn69LmELfg2fymmMz9WdiLcFwisorCEIFfQPDcivE='; style-src 'unsafe-inline'; img-src 'self' blob: data:; connect-src https://u2mnrv3unj.execute-api.us-east-1.amazonaws.com wss://6yx4yplcbl.execute-api.us-east-1.amazonaws.com https://cipherpost-files-677647025792.s3.us-east-1.amazonaws.com; manifest-src 'self'; form-action 'none'; base-uri 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0E1117">
@@ -477,8 +477,16 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
   Object.assign(CP2, { MemoryBackend, IDBBackend, Store, WrongPasscode, LockedOut, Erased, MAX_FAILS, lockoutMs });
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
-<script>/* CipherPost 2 — relay client (ntfy protocol). © 2026 RM Software. See DESIGN.md "Transport".
-   Uses only "simple" requests (GET, and POST without custom headers) so browsers need no CORS preflight. */
+<script>/* CipherPost 2 — relay client. © 2026 RM Software. See DESIGN.md "Transport".
+ * Talks to the CipherPost relay (AWS: API Gateway + Lambda + DynamoDB + S3, covered by the AWS BAA).
+ * The relay only ever sees end-to-end encrypted packets and encrypted file blobs.
+ *
+ *   POST {base}/t/{inbox}[?tags=q]      send a packet (body = "CP2.…")
+ *   GET  {base}/t/{inbox}/json?since=X   new events after X ('all' | event id | unix seconds), one JSON per line
+ *   POST {base}/u/{inbox}?size=N         get a one-time upload slot {put, url}; then PUT the bytes to `put`
+ *   GET  {url}                           download a file (redirects to storage); 404 once expired
+ *   GET  {base}/config                   {ws}: live-delivery WebSocket address (connect with ?topic={inbox})
+ * Sends and checks use "simple" requests (no custom headers), so browsers need no CORS pre-check. */
 (function (G) {
   'use strict';
   const CP2 = G.CP2 = G.CP2 || {};
@@ -486,30 +494,37 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
   class RelayError extends Error { constructor(msg, status) { super(msg); this.status = status; } }
   class Expired extends Error { constructor() { super('File link expired'); this.expired = true; } }
 
+  const OPTS = { cache: 'no-store', referrerPolicy: 'no-referrer' };
+
   class Relay {
-    constructor(fetchImpl) { this.fetch = fetchImpl || G.fetch.bind(G); }
+    constructor(fetchImpl, WebSocketImpl) {
+      this.fetch = fetchImpl || G.fetch.bind(G);
+      this.WS = WebSocketImpl || G.WebSocket;
+      this.configs = new Map();
+    }
 
     /** quiet=true marks receipts and re-send requests (tag "q") so a phone's background check does not
         announce them as new messages. The tag says nothing about content. */
     async publish(base, topic, text, quiet) {
-      const r = await this.fetch(`${base}/${topic}${quiet ? '?tags=q' : ''}`, { method: 'POST', body: text, cache: 'no-store', referrerPolicy: 'no-referrer' });
+      const r = await this.fetch(`${base}/t/${topic}${quiet ? '?tags=q' : ''}`, { ...OPTS, method: 'POST', body: text });
       if (!r.ok) throw new RelayError(r.status === 429 ? 'Relay is busy — will retry' : `Relay error ${r.status}`, r.status);
       return r.json();
     }
 
-    /** Uploads bytes as an attachment; returns its download URL. */
+    /** Stores an encrypted file; returns the link the recipient downloads it from. */
     async upload(base, topic, bytes) {
-      const name = 'cp2-' + CP2.hex(CP2.rand(6)) + '.bin';
-      const r = await this.fetch(`${base}/${topic}?f=${name}`, { method: 'POST', body: bytes, cache: 'no-store', referrerPolicy: 'no-referrer' });
+      const r = await this.fetch(`${base}/u/${topic}?size=${bytes.length}`, { ...OPTS, method: 'POST' });
       if (!r.ok) throw new RelayError(r.status === 413 ? 'File is too large for the relay' : `Relay error ${r.status}`, r.status);
-      const j = await r.json();
-      if (!j.attachment || !j.attachment.url) throw new RelayError('Relay did not store the file', 0);
-      return j.attachment.url;
+      const slot = await r.json();
+      if (!slot.put || !slot.url) throw new RelayError('Relay did not issue an upload slot', 0);
+      const up = await this.fetch(slot.put, { ...OPTS, method: 'PUT', body: bytes });
+      if (!up.ok) throw new RelayError(`File upload failed (${up.status})`, up.status);
+      return slot.url;
     }
 
-    /** Returns message events after `since` (a relay message id, or 'all'). */
+    /** Returns message events after `since` (a relay event id, a unix time in seconds, or 'all'). */
     async poll(base, topic, since) {
-      const r = await this.fetch(`${base}/${topic}/json?poll=1&since=${encodeURIComponent(since || 'all')}`, { cache: 'no-store', referrerPolicy: 'no-referrer' });
+      const r = await this.fetch(`${base}/t/${topic}/json?since=${encodeURIComponent(since || 'all')}`, OPTS);
       if (!r.ok) throw new RelayError(`Relay error ${r.status}`, r.status);
       const out = [];
       for (const line of (await r.text()).split('\n')) {
@@ -520,18 +535,47 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
     }
 
     async download(url) {
-      const r = await this.fetch(url, { cache: 'no-store', referrerPolicy: 'no-referrer' });
+      const r = await this.fetch(url, OPTS);
       if (r.status === 404 || r.status === 410) throw new Expired();
       if (!r.ok) throw new RelayError(`Relay error ${r.status}`, r.status);
       return new Uint8Array(await r.arrayBuffer());
     }
 
-    /** Live updates while the page is open. Returns a function that stops listening. */
+    async liveAddress(base) {
+      if (!this.configs.has(base)) {
+        const p = this.fetch(`${base}/config`, OPTS).then(r => (r.ok ? r.json() : null)).then(c => (c && /^wss?:\/\//.test(c.ws) ? c.ws : null));
+        this.configs.set(base, p);
+        p.then(v => { if (!v) this.configs.delete(base); }, () => this.configs.delete(base));
+      }
+      return this.configs.get(base);
+    }
+
+    /** Live delivery while the app is open: reconnects by itself and keeps the connection alive.
+        Returns a function that stops listening. */
     subscribe(base, topic, onEvent) {
-      if (!G.EventSource) return () => {};
-      const es = new G.EventSource(`${base}/${topic}/sse`);
-      es.onmessage = ev => { try { const e = JSON.parse(ev.data); if (e.event === 'message') onEvent(e); } catch (x) { /* ignore */ } };
-      return () => es.close();
+      if (!this.WS) return () => {};
+      let stopped = false, sock = null, retry = 1000, ping = null, timer = null;
+      const connect = async () => {
+        if (stopped) return;
+        let ws;
+        try { ws = await this.liveAddress(base); } catch (e) { ws = null; }
+        if (stopped) return;
+        if (!ws) { timer = setTimeout(connect, retry = Math.min(retry * 2, 60000)); return; }
+        try { sock = new this.WS(`${ws}?topic=${encodeURIComponent(topic)}`); } catch (e) { timer = setTimeout(connect, retry = Math.min(retry * 2, 60000)); return; }
+        sock.onopen = () => {
+          retry = 1000;
+          // the relay closes idle connections after 10 minutes; a tiny ping every 5 keeps it open
+          ping = setInterval(() => { try { sock.send('{"action":"ping"}'); } catch (e) { /* reconnect handles it */ } }, 5 * 60 * 1000);
+        };
+        sock.onmessage = m => { try { const e = JSON.parse(m.data); if (e && e.event === 'message') onEvent(e); } catch (x) { /* ignore */ } };
+        sock.onclose = () => {
+          clearInterval(ping); ping = null; sock = null;
+          if (!stopped) timer = setTimeout(connect, retry = Math.min(retry * 2, 60000));
+        };
+        sock.onerror = () => { try { sock && sock.close(); } catch (e) { /* closing anyway */ } };
+      };
+      connect();
+      return () => { stopped = true; clearTimeout(timer); clearInterval(ping); try { sock && sock.close(); } catch (e) { /* already closed */ } };
     }
   }
 
@@ -1024,7 +1068,8 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
   'use strict';
   const CP2 = G.CP2 = G.CP2 || {};
   const OFFICIAL_PAGE = 'https://securedmessage.github.io/cipherpost/';
-  const DEFAULT_RELAY = 'https://ntfy.sh';
+  // CipherPost relay on AWS (covered by the AWS Business Associate Addendum). See relay-aws/.
+  const DEFAULT_RELAY = 'https://u2mnrv3unj.execute-api.us-east-1.amazonaws.com';
 
   // ------------------------------------------------------------ Android shell bridge
   let seq = 0;
