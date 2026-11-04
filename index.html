@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-6X0Qf9ZzkUcwyC1O3E/TbzPjl3HvJwFiPkmmgz/FetQ=' 'sha256-6Mgt4JPsExEeNfs+2L0oTiBp09BiGMlYlEUKjD1l5eM=' 'sha256-FiCJYmqqQ+JGIZqmrqX8gET9oqhjwT5uTe06nI93S1o=' 'sha256-a7rLmXlfZhbVKf21rWYoJ05cEGfuSzP9OG7B+JQrib8=' 'sha256-Xa0vDZ7VlTAo0gvq48yiqNDJnUAAQiiW7mtkrKc0k8M=' 'sha256-4ZMpF/yT0Xm1VgN/WyoV9g0uJbDNWVahNE5yzkoZMsQ='; style-src 'unsafe-inline'; img-src 'self' blob: data:; connect-src https://ntfy.sh; manifest-src 'self'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-6X0Qf9ZzkUcwyC1O3E/TbzPjl3HvJwFiPkmmgz/FetQ=' 'sha256-6Mgt4JPsExEeNfs+2L0oTiBp09BiGMlYlEUKjD1l5eM=' 'sha256-FiCJYmqqQ+JGIZqmrqX8gET9oqhjwT5uTe06nI93S1o=' 'sha256-kIPHIeGCA3FEJa/YCbZSy520jKXYRY9TBN8RhuV5E4I=' 'sha256-Xa0vDZ7VlTAo0gvq48yiqNDJnUAAQiiW7mtkrKc0k8M=' 'sha256-yPzn69LmELfg2fymmMz9WdiLcFwisorCEIFfQPDcivE='; style-src 'unsafe-inline'; img-src 'self' blob: data:; connect-src https://ntfy.sh; manifest-src 'self'; form-action 'none'; base-uri 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0E1117">
 <meta name="color-scheme" content="dark">
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="CipherPost">
-<title>CipherPost Secure Messages</title>
+<title>CipherPost Messages</title>
 <style>
 :root{--bg:#0E1117;--card:#181D27;--card2:#212836;--line:#2c3445;--accent:#3DDC97;--accentDark:#1D5E47;--text:#E9EDF3;--muted:#8B94A5;--warn:#F2B84B;--danger:#F06A6A}
 *{box-sizing:border-box}
@@ -792,7 +792,7 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
     smsNoticeDue(c) {
       if (this.role !== 'staff' || c.role !== 'patient' || !c.phone || !this.s.settings.smsNotices) return null;
       if (this.now() - (c.lastSms || 0) < SMS_GAP && !c.repliedSinceSms) return null;
-      return { phone: c.phone, text: `You have a new secure message from ${this.s.me.name}. Open: ${this.page}` };
+      return { phone: c.phone, text: `You have a new message from ${this.s.me.name}. Read it here: ${this.page}` };
     }
     noteSmsSent(cid) { const c = this.contact(cid); if (c) { c.lastSms = this.now(); c.repliedSinceSms = false; this.audit('sms_notice', `To ${this.label(c)}`); this.save(); } }
 
@@ -1265,31 +1265,32 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
       if (p1.value !== p2.value) return (err.textContent = "Passcodes don't match");
       const r = relayIn.value.trim().replace(/\/+$/, '');
       if (!/^https:\/\/[^\s/]+/.test(r) && !/^http:\/\/127\.0\.0\.1:\d+$/.test(r)) return (err.textContent = 'The relay must be an https:// address');
-      btn.disabled = true; btn.textContent = 'Creating your keys…';
+      btn.disabled = true; btn.textContent = 'Setting up…';
       try { await E.create(name.value, p1.value, r); await afterUnlock(); toast('Welcome — invite a patient or colleague to start'); }
-      catch (e) { err.textContent = e.message; btn.disabled = false; btn.textContent = 'Create my account'; }
+      catch (e) { err.textContent = plain(e); btn.disabled = false; btn.textContent = 'Create my account'; }
     } }, 'Create my account');
     show(h('main', { class: 'center-col' },
-      h('div', { class: 'logo' }, '🔐'), h('h1', null, 'Welcome to CipherPost'),
-      h('p', { class: 'muted c' }, 'End-to-end encrypted messages and files with patients and colleagues. Your keys are created on this device and never leave it.'),
+      h('div', { class: 'logo' }, '💬'), h('h1', null, 'Welcome to CipherPost'),
+      h('p', { class: 'muted c' }, 'Private messages and files with your patients and colleagues.'),
       h('div', { class: 'card' },
         h('label', null, 'Your name — patients and colleagues see it'), name,
-        h('label', null, 'Passcode — at least 6 digits. Needed every time CipherPost opens; it cannot be recovered.'), p1, p2,
-        err, btn),
+        h('label', null, 'Choose a passcode (at least 6 digits). You\'ll use it to open CipherPost — keep it somewhere safe, it can\'t be reset.'), p1, p2,
+        err, btn, alreadySignedUp()),
       footer()));
   }
 
   function screenNoInvite() {
     show(h('main', { class: 'center-col' },
-      h('div', { class: 'logo' }, '🔐'), h('h1', null, 'Secure messages'),
-      h('p', { class: 'muted c' }, 'To message your care team securely, open the invite link they sent you by text or email. Nothing to install.'),
+      h('div', { class: 'logo' }, '💬'), h('h1', null, 'Messages'),
+      h('p', { class: 'muted c' }, 'To message your care team, open the link they sent you by text or email. There\'s nothing to install.'),
+      h('p', { class: 'small muted c' }, 'Already signed up? Open this page on the phone and browser you used to sign up — you\'ll be asked for your passcode there.'),
       footer()));
   }
 
   async function screenJoin(text) {
     let inv;
     try { inv = await CP2.parseInviteCode(text); CP2.Engine.checkInviteFor(P.role, inv); }
-    catch (e) { return screenWrongPlace(text, e.message); }
+    catch (e) { return screenWrongPlace(text, plain(e)); }
     const p1 = pinInput('Choose a passcode'), p2 = pinInput('Repeat passcode');
     const err = h('p', { class: 'err', role: 'alert' });
     const btn = h('button', { class: 'primary', onclick: async () => {
@@ -1303,15 +1304,31 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
         pendingLink = null;
         await afterUnlock({ name: 'chat', cid: r.contact.id });
         toast(`Connected with ${inv.inviter.name}`);
-      } catch (e) { err.textContent = e.message; btn.disabled = false; btn.textContent = 'Connect'; }
+      } catch (e) { err.textContent = plain(e); btn.disabled = false; btn.textContent = 'Connect'; }
     } }, 'Connect');
     show(h('main', { class: 'center-col' },
-      h('div', { class: 'logo' }, '🔐'), h('h1', null, 'Secure messages'),
-      h('p', { class: 'muted c' }, `${inv.inviter.name} invited you to message them privately. Nothing to install — choose a passcode and you're connected.`),
+      h('div', { class: 'logo' }, '💬'), h('h1', null, `Message ${inv.inviter.name}`),
+      h('p', { class: 'muted c' }, `${inv.inviter.name} invited you to message them. There's nothing to install — just choose a passcode.`),
       h('div', { class: 'card' },
-        h('label', null, 'Choose a passcode — at least 6 digits. You\'ll enter it to read your messages.'), p1, p2, err, btn),
-      h('p', { class: 'small muted c' }, 'Your messages are encrypted on this phone. Keep using this same browser to read them.'),
+        h('label', null, 'Choose a passcode — at least 6 digits. You\'ll enter it to read your messages.'), p1, p2, err, btn, alreadySignedUp()),
+      h('p', { class: 'small muted c' }, 'Tip: use this same browser each time to see your messages.'),
       footer()));
+  }
+
+  /** "Already signed up?" link for the sign-up screens. CipherPost keeps each person's messages on the device
+      where they signed up, so returning users are sent back there (there is no central account to log in to). */
+  const alreadySignedUp = () => h('button', { class: 'link', onclick: () => alertBox('Sign in', STAFF
+    ? 'Open CipherPost on the phone or computer where you first set it up — your conversations are kept there. Using a new device as well? Set it up here, then invite your patients and colleagues again from this device.'
+    : 'Open your messages on the phone and browser you used when you signed up — they\'re kept there. If you\'ve changed phones or cleared your browser, ask your care team to send you a new invite.') }, 'Already signed up? Sign in');
+
+  /** Turns technical error messages into plain language; friendly messages pass through unchanged. */
+  function plain(e) {
+    const m = String((e && e.message) || e || '');
+    if (/^(Damaged|Invalid code|Unsupported|Contact card|Signature|Join card|Not a CipherPost|Not for me|Unknown sender|Bad invite)/i.test(m)) return 'This link is incomplete or no longer valid. Please ask for a new invite.';
+    if (/^Relay|Failed to fetch|NetworkError|Load failed|network/i.test(m)) return 'Couldn\'t connect. Check your internet connection and try again.';
+    if (/File was altered/i.test(m)) return 'This file didn\'t arrive correctly. Ask them to send it again.';
+    if (/Data is damaged|Storage|No data|bad base-64|Damaged data|OperationError/i.test(m)) return 'Something went wrong on this device. Please try again.';
+    return m || 'Something went wrong. Please try again.';
   }
 
   /** An invite opened in the wrong place (e.g. a staff invite in a browser, or a patient invite in the app). */
@@ -1336,7 +1353,7 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
     const pin = pinInput('Passcode');
     const status = h('p', { class: 'warn c', role: 'status' });
     const btn = h('button', { class: 'primary' }, 'Unlock');
-    const invNote = pendingLink && !STAFF ? h('p', { class: 'muted c' }, 'You have a new invite. Enter your passcode to add it to your secure messages.') : null;
+    const invNote = pendingLink && !STAFF ? h('p', { class: 'muted c' }, 'You have a new invite. Enter your passcode to add it.') : null;
     const refresh = async () => {
       const m = await store.meta(); if (!m) return route();
       const wait = (m.lockoutUntil || 0) - Date.now();
@@ -1350,7 +1367,7 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
       catch (e) {
         btn.textContent = 'Unlock'; pin.value = '';
         if (e.erased) { await alertBox('Data erased', 'Too many wrong passcodes. All CipherPost data on this device has been erased.'); return route(); }
-        if (!e.wrongPasscode && !e.lockedOut) status.textContent = e.message;
+        if (!e.wrongPasscode && !e.lockedOut) status.textContent = plain(e);
         await refresh();
         if (e.wrongPasscode) toast('Wrong passcode');
       }
@@ -1361,7 +1378,7 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
     if (P.bio && await P.bio.enabled().catch(() => false)) {
       const tryBio = async () => {
         try { const dek = await P.bio.unlock(); if (!dek) return; await E.unlockWithDek(dek); await afterUnlock(); }
-        catch (e) { status.textContent = e.message; }
+        catch (e) { status.textContent = plain(e); }
       };
       bioBtn = h('button', { onclick: tryBio }, 'Use fingerprint or face');
       if (!bioTried) { bioTried = true; setTimeout(tryBio, 200); }
@@ -1369,12 +1386,12 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
     const forgot = h('button', { class: 'link', onclick: async () => {
       if (await confirmBox(STAFF ? 'Forgot your passcode?' : 'Start over?',
         STAFF ? 'The only way back in is to erase CipherPost on this device and set it up again. Your contacts will need to invite you again or be re-invited.'
-              : 'This erases the secure messages in this browser. Your care team can simply invite you again.', 'Erase', true)) {
+              : 'This removes your messages from this browser. Your care team can simply invite you again.', 'Erase', true)) {
         await E.erase(); route();
       }
     } }, pendingLink && !STAFF ? 'Not my inbox, or forgot passcode — start fresh' : 'Forgot passcode?');
     show(h('main', { class: 'center-col' },
-      h('div', { class: 'logo' }, '🔒'), h('h1', null, 'CipherPost is locked'), invNote,
+      h('div', { class: 'logo' }, '💬'), h('h1', null, 'Welcome back'), h('p', { class: 'muted c' }, 'Enter your passcode to see your messages.'), invNote,
       h('div', { class: 'card' }, pin, status, btn, bioBtn, forgot),
       footer()));
     if (meta) refresh();
@@ -1399,7 +1416,7 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
   }
   let offline = false;
   function setOffline(v) { if (offline !== v) { offline = v; scheduleRender(); } }
-  function notifyIfHidden() { if (D.hidden && P.notify) P.notify('CipherPost', 'You have a new secure message'); }
+  function notifyIfHidden() { if (D.hidden && P.notify) P.notify('CipherPost', 'You have a new message'); }
 
   function startTimers() {
     timers.forEach(clearInterval);
@@ -1462,12 +1479,12 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
   async function handleInviteWhileUnlocked(text) {
     let inv;
     try { inv = await CP2.parseInviteCode(text); CP2.Engine.checkInviteFor(P.role, inv); }
-    catch (e) { return screenWrongPlace(text, e.message); }
+    catch (e) { return screenWrongPlace(text, plain(e)); }
     if (inv.inviter.id === E.myId) { await alertBox('That\'s your own invite', 'Send it to the person you want to connect with.'); return render(); }
     if (E.contact(inv.inviter.id)) return go({ name: 'chat', cid: inv.inviter.id });
-    if (!(await confirmBox(`Connect with ${inv.inviter.name}?`, `${inv.inviter.name} invited you to message securely. You'll both be verified automatically.`, 'Connect'))) return render();
+    if (!(await confirmBox(`Connect with ${inv.inviter.name}?`, `${inv.inviter.name} invited you to message each other in CipherPost.`, 'Connect'))) return render();
     try { const r = await E.acceptInvite(inv); toast(`Connected with ${inv.inviter.name}`); go({ name: 'chat', cid: r.contact.id }); }
-    catch (e) { await alertBox('Couldn\'t connect', e.message); render(); }
+    catch (e) { await alertBox('Couldn\'t connect', plain(e)); render(); }
   }
 
   async function inviteDialog(type) {
@@ -1498,7 +1515,7 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
   async function deliverInvite(inv) {
     const link = E.inviteLink(inv.id);
     const text = inv.type === 'patient'
-      ? `${E.me.name} invited you to secure messaging (nothing to install): ${link}`
+      ? `${E.me.name} invited you to message them (nothing to install): ${link}`
       : `${E.me.name} invited you to CipherPost. Open on a device with CipherPost: ${link}`;
     if (inv.phone && P.kind === 'android') {
       const r = await P.sendSms(inv.phone, text).catch(() => 'error');
@@ -1525,7 +1542,7 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
     if (STAFF) parts.push(h('div', { class: 'row' },
       h('button', { class: 'primary', onclick: () => inviteDialog('patient') }, 'Invite patient'),
       h('button', { onclick: () => inviteDialog('staff') }, 'Invite colleague')));
-    if (offline) parts.push(h('p', { class: 'banner' }, 'Can\'t reach the relay — messages will be sent when the connection is back.'));
+    if (offline) parts.push(h('p', { class: 'banner' }, 'You\'re offline — messages will send when you\'re back online.'));
     const waiting = STAFF ? E.pendingInvites() : [];
     if (waiting.length) {
       parts.push(h('h3', null, 'Waiting to connect'));
@@ -1544,8 +1561,7 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
           c.unread ? h('span', { class: 'badge' }, String(c.unread)) : null),
         h('div', { class: 'item-sub' }, h('span', { class: 'ellipsis' }, prev), last ? h('span', { class: 'time' }, fmtTime(last.rx || last.ts)) : null)));
     }
-    parts.push(h('p', { class: 'small muted c' }, '✓ Everyone here is verified · end-to-end encrypted'));
-    show(header(STAFF ? E.me.name : 'Secure messages', STAFF ? 'CipherPost' : null, null, h('div', { class: 'bar-actions' }, lockBtn, menuBtn)),
+    show(header(STAFF ? E.me.name : 'Messages', STAFF ? 'CipherPost' : null, null, h('div', { class: 'bar-actions' }, lockBtn, menuBtn)),
       h('main', null, parts), footer());
   }
 
@@ -1572,7 +1588,7 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
       const text = input.value; if (!text.trim()) return;
       send.disabled = true;
       try { const r = await E.send(cid, text); input.value = ''; await afterSend(c, r); }
-      catch (e) { toast(e.message); }
+      catch (e) { toast(plain(e)); }
       send.disabled = false; input.focus();
     } }, 'Send');
     input.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) send.click(); });
@@ -1585,10 +1601,10 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
         const r = await E.sendFile(cid, { name: f.name, mime: f.type || 'application/octet-stream', bytes: new Uint8Array(await f.arrayBuffer()) }, input.value.trim());
         input.value = '';
         await afterSend(c, r);
-      } catch (e) { alertBox('Couldn\'t send file', e.message); }
+      } catch (e) { alertBox('Couldn\'t send file', plain(e)); }
     });
     const attach = iconBtn('Attach a file', () => fileIn.click(), '📎');
-    show(header(c.name, `✓ verified · ${c.role === 'patient' ? 'patient' : STAFF ? 'colleague' : 'care team'}`, back, info),
+    show(header(c.name, c.role === 'patient' ? 'Patient' : STAFF ? 'Colleague' : 'Care team', back, info),
       h('main', { class: 'chat' }, threadEl),
       h('div', { class: 'composer' }, attach, input, send, fileIn));
     renderThread(true);
@@ -1605,10 +1621,10 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
       const now = Date.now();
       if (c.lastEmailPrompt && now - c.lastEmailPrompt < CP2.SMS_GAP && !c.repliedSinceSms) return;
       c.lastEmailPrompt = now;
-      const text = `You have a new secure message from ${E.me.name}. Open: ${P.page}`;
+      const text = `You have a new message from ${E.me.name}. Read it here: ${P.page}`;
       const bar = h('div', { class: 'notice-bar' }, `Let ${firstName(c.name)} know there's a message?`,
         c.phone && canQr() ? h('button', { onclick: async () => { bar.remove(); await textFromPhone(c.name, c.phone, text); E.noteSmsSent(c.id); } }, 'Text from my phone') : null,
-        c.email ? h('button', { onclick: async () => { await P.sendEmail(c.email, 'New secure message', text); E.noteSmsSent(c.id); bar.remove(); } }, 'Email notice') : null,
+        c.email ? h('button', { onclick: async () => { await P.sendEmail(c.email, `New message from ${E.me.name}`, text); E.noteSmsSent(c.id); bar.remove(); } }, 'Email notice') : null,
         h('button', { onclick: async () => { const s = await P.shareText(text); if (s === 'copied') toast('Notice copied'); E.noteSmsSent(c.id); bar.remove(); } }, 'Copy notice'),
         h('button', { class: 'link', onclick: () => bar.remove() }, 'No'));
       const comp = D.querySelector('.composer'); if (comp) comp.before(bar);
@@ -1620,7 +1636,7 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
     if (!threadEl || !c || view.name !== 'chat') return;
     const nearBottom = initial || threadEl.scrollHeight - threadEl.scrollTop - threadEl.clientHeight < 80;
     const nodes = [];
-    if (!c.msgs.length) nodes.push(h('p', { class: 'muted c' }, c.joined || !STAFF ? `You're connected with ${c.name}. Messages are end-to-end encrypted.` : 'No messages yet.'));
+    if (!c.msgs.length) nodes.push(h('p', { class: 'muted c' }, c.joined || !STAFF ? `You're connected with ${c.name}. Say hello!` : 'No messages yet.'));
     for (const m of c.msgs) nodes.push(bubble(c, m));
     threadEl.replaceChildren(...nodes);
     E.markRead(chatCid);
@@ -1641,7 +1657,7 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
           st === 'ready' ? 'tap to open' : st === 'requested' ? 'link expired — asking for it again…' : st === 'failed' ? 'download failed — tap to retry' : 'downloading…'));
       if (m.text) kids.push(h('div', { class: 'text' }, m.text));
     } else kids.push(h('div', { class: 'text' }, m.text));
-    kids.push(h('div', { class: 'meta' }, '🔒 ', fmtTime(m.out ? m.ts : (m.rx || m.ts)), m.out ? ' · ' + (STATUS[m.status] || '') : ''));
+    kids.push(h('div', { class: 'meta' }, fmtTime(m.out ? m.ts : (m.rx || m.ts)), m.out ? ' · ' + (STATUS[m.status] || '') : ''));
     const b = h('div', { class: 'bubble ' + (m.out ? 'out' : 'in') + (m.status === 'failed' ? ' failed' : ''), tabindex: '0',
                           onclick: () => m.file ? openFile(c, m) : null,
                           oncontextmenu: e => { e.preventDefault(); messageActions(c, m); } }, kids);
@@ -1658,12 +1674,9 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
 
   async function contactInfo(cid) {
     const c = E.contact(cid);
-    const code = await E.safetyCodeOf(cid);
     const v = await modal(c.name, h('div', null,
-      h('p', null, `${c.role === 'patient' ? 'Patient' : 'Staff'} · verified automatically when they connected.`),
-      c.phone || c.email ? h('p', { class: 'muted' }, [c.phone, c.email].filter(Boolean).join(' · ')) : null,
-      h('p', { class: 'small muted' }, 'Safety code (optional extra check — matches the code on their device):'),
-      h('p', { class: 'mono' }, code)),
+      h('p', null, c.role === 'patient' ? 'Patient' : STAFF ? 'Colleague' : 'Care team'),
+      c.phone || c.email ? h('p', { class: 'muted' }, [c.phone, c.email].filter(Boolean).join(' · ')) : null),
       [{ label: 'Delete contact', value: 'del', danger: true }, { label: 'Close', value: null, primary: true }]);
     if (v === 'del' && await confirmBox(`Delete ${c.name}?`, 'Removes them and your conversation from this device. You would need to invite them again.', 'Delete', true)) {
       await E.deleteContact(cid); go({ name: 'home' });
@@ -1677,7 +1690,7 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
       return;
     }
     let bytes;
-    try { bytes = await E.fileBytes(c.id, m.id, 'view'); } catch (e) { return alertBox('Couldn\'t open file', e.message); }
+    try { bytes = await E.fileBytes(c.id, m.id, 'view'); } catch (e) { return alertBox('Couldn\'t open file', plain(e)); }
     const mime = m.file.mime;
     if (await P.viewFile(m.file.name, mime, bytes)) return;
     const back = iconBtn('Back', () => go({ name: 'chat', cid: c.id }), '‹');
@@ -1691,9 +1704,9 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
         h('button', { onclick: () => saveCopy(c, m) }, 'Save a copy…')));
   }
   async function saveCopy(c, m) {
-    if (!(await confirmBox('Save an unencrypted copy?', 'The saved copy is not protected by CipherPost — other apps and anyone with access to this device may be able to read it. Only save it if your organization\'s policy allows it.' + (STAFF ? ' The save is recorded in the audit log.' : ''), 'Save'))) return;
+    if (!(await confirmBox('Save a copy outside CipherPost?', (STAFF ? 'The saved copy isn\'t protected by CipherPost — other apps and anyone using this device may be able to open it. Only save it if your organization\'s policy allows it. The save is recorded in the audit log.' : 'The saved copy won\'t be protected by your passcode — anyone using this device may be able to open it.'), 'Save'))) return;
     try { const b = await E.fileBytes(c.id, m.id, 'save'); await P.saveFile(m.file.name, m.file.mime, b); }
-    catch (e) { alertBox('Couldn\'t save', e.message); }
+    catch (e) { alertBox('Couldn\'t save', plain(e)); }
   }
 
   // ============================================================ settings, audit, help, about
@@ -1721,7 +1734,7 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
           if (on) { await P.bio.disable(); E.audit('setting_changed', 'Fingerprint/face unlock: off'); await E.save(); return render(); }
           if (!(await confirmBox('Unlock with fingerprint or face?', 'CipherPost will also open with your phone\'s own lock — so anyone who knows the phone\'s PIN can open it. Your passcode keeps working. Check that your organization\'s policy allows this.', 'Turn on'))) return;
           try { if (await P.bio.enable(store.exportDek())) { E.audit('setting_changed', 'Fingerprint/face unlock: on'); await E.save(); toast('Fingerprint/face unlock is on'); } }
-          catch (e) { alertBox('Couldn\'t turn it on', e.message); }
+          catch (e) { alertBox('Couldn\'t turn it on', plain(e)); }
           render();
         }));
       }
@@ -1734,13 +1747,12 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
     rows.push(h('h3', null, 'Account'));
     rows.push(row('Change passcode', null, changePasscode));
     rows.push(row('Lock now', null, () => lockNow('Locked by user')));
-    if (STAFF) rows.push(row('Relay server', E.me.relay, () => alertBox('Relay server', `Encrypted messages pass through ${E.me.relay}. It only ever sees scrambled data. To use a different relay, set it when creating your account.`)));
     rows.push(h('h3', null, 'Help'));
     rows.push(row('How CipherPost works', null, () => go({ name: 'help' })));
     rows.push(row('About', null, about));
     rows.push(h('h3', null, 'Danger zone'));
     rows.push(h('button', { class: 'danger', onclick: async () => {
-      if (await confirmBox('Erase everything?', 'Permanently deletes your keys, contacts and messages on this device. This cannot be undone.', 'Erase', true)) { await lockNow(null); await E.erase(); route(); }
+      if (await confirmBox('Erase everything?', 'Permanently deletes your contacts and messages on this device. This cannot be undone.', 'Erase', true)) { await lockNow(null); await E.erase(); route(); }
     } }, 'Erase all CipherPost data on this device'));
     show(header('Settings', null, back), h('main', null, rows), footer());
   }
@@ -1751,7 +1763,7 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
     const ok = await modal('Change passcode', h('div', null, cur, n1, n2, err), [{ label: 'Cancel', value: false }, { label: 'Change', value: true, primary: true, check: async () => {
       const pp = passProblem(n1.value); if (pp) { err.textContent = pp; return false; }
       if (n1.value !== n2.value) { err.textContent = "Passcodes don't match"; return false; }
-      try { await E.changePasscode(cur.value, n1.value); return true; } catch (e) { err.textContent = e.wrongPasscode ? 'Current passcode is wrong' : e.message; return false; }
+      try { await E.changePasscode(cur.value, n1.value); return true; } catch (e) { err.textContent = e.wrongPasscode ? 'Current passcode is wrong' : plain(e); return false; }
     } }]);
     if (ok) toast('Passcode changed');
   }
@@ -1777,11 +1789,11 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
     const back = iconBtn('Back', () => go({ name: 'settings' }), '‹');
     const sec = (t, ...p) => h('section', { class: 'card' }, h('h3', null, t), p.map(x => h('p', null, x)));
     const staff = [
-      sec('Inviting a patient', 'Tap Invite patient, enter their name and mobile number or email, and send. They tap the link, choose a passcode, and appear in your conversations by themselves — already verified. Patients install nothing.'),
+      sec('Inviting a patient', 'Tap Invite patient, enter their name and mobile number or email, and send. They tap the link, choose a passcode, and appear in your conversations by themselves. Patients install nothing.'),
       sec('Inviting a colleague', 'Tap Invite colleague. They open the link on a phone or PC with CipherPost and tap Connect. Each invite works once and expires after 30 days; until then it shows under Waiting to connect.'),
       sec('Messages', 'Type and tap Send (Ctrl+Enter on a PC). Messages arrive by themselves. Sending… → Sent ✓ → Delivered ✓✓ once it has reached their device. If someone is offline, CipherPost keeps re-sending for up to 14 days.'),
       sec('Patients are notified', P.kind === 'android' ? 'When you message a patient who has a mobile number, the app texts them a short notice (no message content). Turn this off in Settings.' : 'After messaging a patient, CipherPost offers to let them know: "Text from my phone" shows a QR code — point your phone\'s camera at it and your texting app opens with the notice ready to send. Email and Copy work too. The notice never contains the message.'),
-      sec('Files', 'Tap 📎 to send a photo, PDF or other file up to 15 MB; anything in the message box goes as its caption. Received files are kept encrypted on this device. Saving a copy outside CipherPost is recorded in the audit log.'),
+      sec('Files', 'Tap 📎 to send a photo, PDF or other file up to 15 MB; anything in the message box goes as its caption. Received files stay safely inside CipherPost. Saving a copy outside CipherPost is recorded in the audit log.'),
       P.kind === 'desktop' ? sec('Staying in the tray', 'Closing the window keeps CipherPost running in the tray so it can tell you about new messages. To quit, right-click the tray icon and choose Quit CipherPost.') : null,
       sec('Security', 'CipherPost locks after a few minutes without use. After 5 wrong passcodes you must wait; after 10 everything is erased (can be turned off). Settings has the audit log, retention, and fingerprint/face unlock on phones.'),
     ];
@@ -1796,15 +1808,16 @@ details{margin-top:12px} summary{cursor:pointer;color:var(--muted);font-size:14p
   async function about() {
     const v = await P.version().catch(() => '2.0');
     await modal('About CipherPost', h('div', null,
-      h('p', null, `CipherPost ${v}${P.kind === 'desktop' ? ' for Windows' : P.kind === 'android' ? ' for Android' : ' — secure messages'}`),
-      h('p', null, 'End-to-end encrypted messages and files between care teams and patients. Messages are encrypted on the sender\'s device (AES-256-GCM, P-256 keys, signed) and can only be read on the recipient\'s. The relay that carries them only ever sees scrambled data.'),
+      h('p', null, `CipherPost ${v}${P.kind === 'desktop' ? ' for Windows' : P.kind === 'android' ? ' for Android' : ''}`),
+      h('p', null, 'Private messages and files between care teams and patients. Only the people in a conversation can read it.'),
+      h('p', { class: 'small muted' }, 'For your IT or compliance team: messages and files are end-to-end encrypted (AES-256-GCM with signed P-256 keys) on the sender\'s device and decrypted only on the recipient\'s.'),
       h('p', null, '© 2026 RM Software. All rights reserved.')));
   }
 
   // ============================================================ start
   G.addEventListener('error', e => console.error(e.error || e.message));
   if (!G.isSecureContext || !G.crypto || !G.crypto.subtle) {
-    show(h('main', { class: 'center-col' }, h('h1', null, 'Secure connection required'), h('p', null, 'Open this page over https:// in an up-to-date browser.')));
+    show(h('main', { class: 'center-col' }, h('h1', null, 'Please update your browser'), h('p', null, 'This page needs an up-to-date browser such as Chrome, Safari, Edge or Firefox.')));
   } else route();
 })(window);
 </script>
